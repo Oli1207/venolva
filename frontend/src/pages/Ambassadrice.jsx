@@ -19,14 +19,14 @@ export default function Ambassadrice() {
       <div className="topbar" style={{ paddingBottom: 12 }}><BackButton to="/profil" /><h1 className="h" style={{ fontSize: 28, lineHeight: 1 }}>Ambassadrice</h1></div>
 
       {!c ? (
-        <Empty title="Pas encore de contrat">L'équipe Djinzin va préparer ton contrat. Tu le verras ici dès qu'il sera créé.</Empty>
+        <Empty title="Pas encore de contrat">L'équipe Venolva va préparer ton contrat. Tu le verras ici dès qu'il sera créé.</Empty>
       ) : (
         <>
           <div className="pad" style={{ paddingTop: 12 }}>
             <div className="k">Gagné et pas encore relevé</div>
             <div className="h" style={{ fontSize: 46, letterSpacing: "-0.05em", lineHeight: 1.05, marginTop: 4 }}>{fmtPrice(c.preview?.amount || 0)}</div>
             <p className="small muted" style={{ margin: "8px 0 0", lineHeight: 1.5 }}>
-              {c.state === "draft" ? "Ton contrat n'est pas encore signé : il ne produit pas de gains." : `Estimation à partir de ${fmtPrice(c.preview?.fees || 0)} de commissions de Djinzin. Elle est confirmée sur ton relevé du mois.`}
+              {c.state === "draft" ? "Ton contrat n'est pas encore signé : il ne produit pas de gains." : `Estimation à partir de ${fmtPrice(c.preview?.fees || 0)} de commissions de Venolva. Elle est confirmée sur ton relevé du mois.`}
             </p>
           </div>
 
@@ -41,7 +41,7 @@ export default function Ambassadrice() {
           {leaving && <div className="callout" style={{ margin: "14px 24px 0" }}>Ton contrat se termine dans {c.days_left} jours. L'équipe te proposera son renouvellement, à signer de nouveau.</div>}
 
           <p className="hint pad" style={{ margin: "16px 0 0", lineHeight: 1.55 }}>
-            Tu touches {c.share_pct} % de la commission que Djinzin perçoit sur les paiements en ligne (réservations et cours), une fois la séance passée et le délai d'attente écoulé. Rien n'est retiré à l'argent des pros et des salles, et un paiement remboursé ne compte pas.
+            Tu touches {c.share_pct} % de la commission que Venolva perçoit sur les paiements en ligne (réservations et cours), une fois la séance passée et le délai d'attente écoulé. Rien n'est retiré à l'argent des pros et des salles, et un paiement remboursé ne compte pas.
           </p>
 
           <div className="stats" style={{ paddingTop: 20 }}>

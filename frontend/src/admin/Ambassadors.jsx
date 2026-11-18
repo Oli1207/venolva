@@ -113,7 +113,7 @@ function Detail({ id, defaults, onChange }) {
         <h3 style={{ margin: "0 0 8px", fontSize: 16 }}>Relevés mensuels</h3>
         <div className="tbl-wrap">
           <table className="t">
-            <thead><tr><th>Mois</th><th className="num">Commissions de Djinzin</th><th className="num">Part</th><th className="num">À verser</th><th>État</th><th /></tr></thead>
+            <thead><tr><th>Mois</th><th className="num">Commissions de Venolva</th><th className="num">Part</th><th className="num">À verser</th><th>État</th><th /></tr></thead>
             <tbody>
               {data.statements.length === 0 ? <EmptyRow cols={6}>Aucun relevé pour l'instant.</EmptyRow> : data.statements.map((s) => {
                 const [label, tone] = STATEMENT[s.status];
@@ -175,10 +175,10 @@ export default function Ambassadors() {
   const add = (e) => { e.preventDefault(); run(async () => { await api.post("/admin/ambassadors/", { email: phone }); setPhone(""); await list.reload(); }); };
 
   return (
-    <Page title="Ambassadeurs" sub="Une ambassadrice représente Djinzin et touche un pourcentage de ce que la plateforme gagne. Contrat de durée fixe, renouvelable en le signant de nouveau.">
+    <Page title="Ambassadeurs" sub="Une ambassadrice représente Venolva et touche un pourcentage de ce que la plateforme gagne. Contrat de durée fixe, renouvelable en le signant de nouveau.">
       <div className="confirm" style={{ marginTop: 0, background: "var(--surface)", borderColor: "var(--line)" }}>
-        <b>Comment sa part est calculée.</b> {defaults.pct}% des <b>commissions que Djinzin perçoit</b> sur les paiements en ligne (réservations et cours), une fois la séance rendue et le délai d'attente passé. Jamais sur l'argent des pros ou des salles, et jamais sur un paiement remboursé. Le taux est proposé par défaut dans les Réglages, et chaque contrat garde le sien.
-        {zeroCommission && <p style={{ margin: "10px 0 0", color: "#6b2800" }}><b>Attention : la commission de Djinzin est à 0 %.</b> Avec 0 % de commission, une part de commission vaut 0 F. Fixe d'abord la commission dans les Réglages.</p>}
+        <b>Comment sa part est calculée.</b> {defaults.pct}% des <b>commissions que Venolva perçoit</b> sur les paiements en ligne (réservations et cours), une fois la séance rendue et le délai d'attente passé. Jamais sur l'argent des pros ou des salles, et jamais sur un paiement remboursé. Le taux est proposé par défaut dans les Réglages, et chaque contrat garde le sien.
+        {zeroCommission && <p style={{ margin: "10px 0 0", color: "#6b2800" }}><b>Attention : la commission de Venolva est à 0 %.</b> Avec 0 % de commission, une part de commission vaut 0 F. Fixe d'abord la commission dans les Réglages.</p>}
       </div>
 
       <form className="adm-form" onSubmit={add} style={{ margin: "20px 0 8px" }}>

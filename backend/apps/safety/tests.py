@@ -26,7 +26,7 @@ class BlockTests(APITestCase):
         self.assertEqual(self.block().status_code, 201)
         self.assertEqual(self.block().status_code, 201)  # idempotent
         self.assertEqual(Block.objects.count(), 1)
-        self.assertEqual(self.c.get("/api/blocks/").json()[0]["id"], self.awa.id)
+        self.assertEqual(self.c.get("/api/blocks/").json()[0]["id"], str(self.awa.id))
         self.assertEqual(self.c.delete(f"/api/blocks/{self.awa.id}/").status_code, 204)
         self.assertEqual(Block.objects.count(), 0)
 
@@ -36,13 +36,13 @@ class BlockTests(APITestCase):
         self.assertEqual(self.c.post("/api/blocks/", {"user": staff.id}, format="json").status_code, 400)
 
     def test_blocked_member_disappears_from_matches_and_profile_both_ways(self):
-        self.assertIn(self.awa.id, [m["id"] for m in self.c.get("/api/matches/?min=0").json()])
+        self.assertIn(str(self.awa.id), [m["id"] for m in self.c.get("/api/matches/?min=0").json()])
         self.block()
-        self.assertNotIn(self.awa.id, [m["id"] for m in self.c.get("/api/matches/?min=0").json()])
+        self.assertNotIn(str(self.awa.id), [m["id"] for m in self.c.get("/api/matches/?min=0").json()])
         self.assertEqual(self.c.get(f"/api/members/{self.awa.id}/").status_code, 404)
         # et dans l'autre sens
         other = client_for(self.awa)
-        self.assertNotIn(self.me.id, [m["id"] for m in other.get("/api/matches/?min=0").json()])
+        self.assertNotIn(str(self.me.id), [m["id"] for m in other.get("/api/matches/?min=0").json()])
         self.assertEqual(other.get(f"/api/members/{self.me.id}/").status_code, 404)
 
     def test_blocking_stops_messages_and_meetups(self):

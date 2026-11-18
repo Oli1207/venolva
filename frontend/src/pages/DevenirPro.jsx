@@ -22,7 +22,7 @@ export default function DevenirPro() {
       await api.post("/pro/apply/", {
         pro_type: f.pro_type, speciality: f.speciality.trim(), credential: f.credential.trim(), bio: f.bio.trim(),
         years_experience: f.years_experience === "" ? null : Number(f.years_experience),
-        gym: f.gym ? Number(f.gym) : null,
+        gym: f.gym || null,
       });
       await reload();
       setEditing(false);

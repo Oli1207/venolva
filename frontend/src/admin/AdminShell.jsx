@@ -8,7 +8,7 @@ export default function AdminShell() {
   const { user } = useAuth();
   const stats = useFetch("/admin/dashboard/");
   const d = stats.data;
-  useEffect(() => { document.title = "Administration · Djinzin"; return () => { document.title = "Djinzin"; }; }, []);
+  useEffect(() => { document.title = "Administration · Venolva"; return () => { document.title = "Venolva"; }; }, []);
 
   const items = [
     ["/admin", "Tableau de bord", 0, true],

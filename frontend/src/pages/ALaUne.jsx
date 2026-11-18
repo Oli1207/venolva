@@ -27,7 +27,7 @@ export default function ALaUne() {
   const send = (e) => {
     e.preventDefault();
     const [kind, target] = pick.split(":");
-    run(async () => { await api.post("/features/", { kind, target: Number(target), days: Number(days), commune: "" }); setPick(""); await mine.reload(); });
+    run(async () => { await api.post("/features/", { kind, target, days: Number(days), commune: "" }); setPick(""); await mine.reload(); });
   };
 
   return (

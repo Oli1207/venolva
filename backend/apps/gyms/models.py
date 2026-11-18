@@ -1,9 +1,11 @@
+import uuid
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
 
 class Gym(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=120)
     commune = models.CharField(max_length=60, db_index=True)
     address = models.CharField(max_length=200, blank=True)
@@ -34,6 +36,8 @@ class Gym(models.Model):
 class GymHours(models.Model):
     """Une plage d'ouverture par jour. Pas de ligne pour un jour fermé."""
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
     gym = models.ForeignKey(Gym, on_delete=models.CASCADE, related_name="hours")
     weekday = models.PositiveSmallIntegerField()  # 0 = lundi
     opens = models.TimeField()
@@ -46,6 +50,8 @@ class GymHours(models.Model):
 
 class GymPlan(models.Model):
     """Une formule d'abonnement (séance, mensuel, trimestriel…)."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     gym = models.ForeignKey(Gym, on_delete=models.CASCADE, related_name="plans")
     name = models.CharField(max_length=60)
@@ -60,6 +66,8 @@ class GymPlan(models.Model):
 class GymClass(models.Model):
     """Un cours collectif daté, avec un nombre de places."""
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
     gym = models.ForeignKey(Gym, on_delete=models.CASCADE, related_name="classes")
     name = models.CharField(max_length=80)
     starts_at = models.DateTimeField()
@@ -73,6 +81,7 @@ class GymClass(models.Model):
 
 
 class ClassBooking(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     gym_class = models.ForeignKey(GymClass, on_delete=models.CASCADE, related_name="bookings")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="class_bookings")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -84,6 +93,7 @@ class ClassBooking(models.Model):
 
 
 class GymReview(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     gym = models.ForeignKey(Gym, on_delete=models.CASCADE, related_name="reviews")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="gym_reviews")
     rating = models.PositiveSmallIntegerField()  # 1 à 5
@@ -97,6 +107,8 @@ class GymReview(models.Model):
 
 class MembershipRequest(models.Model):
     """Demande de formule envoyée à la salle. Le paiement se fait sur place."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     class Status(models.TextChoices):
         PENDING = "pending", "En attente"

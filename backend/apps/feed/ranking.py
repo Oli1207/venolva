@@ -24,6 +24,7 @@ from apps.chat.models import Conversation
 from apps.promo import services as promo
 from apps.promo.models import FeatureEvent
 from apps.safety.services import blocked_ids
+from config.ids import uuid_list
 
 from .models import Post, PostImpression, PostLike
 
@@ -132,7 +133,7 @@ def insert_boosts(items: list, boosts: list, every: int) -> list:
 
 def rotate_boosts(features: list, user_id: int, day) -> list:
     """Rotation équitable : les moins vus d'abord, puis un ordre stable par membre et par jour."""
-    return sorted(features, key=lambda f: (f.views, (f.id * 2654435761 + user_id * 40503 + day.toordinal()) % 9973))
+    return sorted(features, key=lambda f: (f.views, (f.id.int + user_id.int + day.toordinal()) % 9973))
 
 
 # ------------------------------------------------------------------ assemblage
@@ -196,7 +197,7 @@ def rank(user, as_of=None, kind=None, pros_only=False):
         )
         score, reasons = score_post(sig, w)
         out.append({"post": p, "score": score, "reasons": reasons, "author_id": a.pk})
-    out.sort(key=lambda r: (-r["score"], -r["post"].pk))
+    out.sort(key=lambda r: (-r["score"], -r["post"].created_at.timestamp()))
     return diversify(out, cfg().feed_max_per_author)
 
 
@@ -248,8 +249,7 @@ def build_page(user, cursor: str = "", size: int = PAGE_SIZE, kind=None, pros_on
 
 def record_seen(user, post_ids) -> int:
     """Note que le membre a vu ces publications (au plus 50 d'un coup, une fois chacune)."""
-    ids = {int(i) for i in post_ids if str(i).isdigit()}
-    ids = set(list(ids)[:50])
+    ids = set(uuid_list(post_ids, 50))
     ids = set(Post.objects.filter(pk__in=ids).exclude(author=user).values_list("pk", flat=True))
     known = set(PostImpression.objects.filter(user=user, post_id__in=ids).values_list("post_id", flat=True))
     PostImpression.objects.bulk_create([PostImpression(user=user, post_id=i) for i in ids - known], ignore_conflicts=True)

@@ -8,6 +8,7 @@ from rest_framework.views import APIView
 from apps.accounts.models import Profile
 from apps.meetups.services import done_count, punctuality
 from apps.safety.services import blocked_ids
+from config.ids import as_uuid
 
 from .services import compatibility
 
@@ -50,9 +51,9 @@ class MatchListView(APIView):
         if me.gym_id:
             near |= Q(gym_id=me.gym_id)
         pool = pool.filter(near)
-        gym = request.query_params.get("gym")
-        if gym and gym.isdigit():
-            pool = pool.filter(gym_id=int(gym))
+        gym = as_uuid(request.query_params.get("gym"))
+        if gym:
+            pool = pool.filter(gym_id=gym)
 
         ranked = [serialize_candidate(me, p) for p in pool]
         ranked = [r for r in ranked if r["score"] >= minimum]
@@ -64,7 +65,7 @@ class MemberDetailView(APIView):
     """GET /api/members/<id>/ : profil d'un binôme, avec la compatibilité avec moi."""
 
     def get(self, request, pk):
-        if int(pk) in blocked_ids(request.user):
+        if pk in blocked_ids(request.user):
             return Response({"detail": "Introuvable."}, status=404)
         other = get_object_or_404(
             Profile.objects.select_related("user", "gym"), user_id=pk, visible=True, onboarded=True

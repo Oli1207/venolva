@@ -43,7 +43,7 @@ export default function Login() {
           Ta salle.<br />Ton objectif.<br />Ton <span style={{ color: "var(--accent)" }}>binôme.</span>
         </h1>
         <p style={{ margin: "20px 0 0", fontSize: 16, lineHeight: 1.5, color: "#55554f", maxWidth: 320 }}>
-          Se mettre au sport est plus facile à deux. Djinzin te présente quelqu'un qui s'entraîne comme toi.
+          Se mettre au sport est plus facile à deux. Venolva te présente quelqu'un qui s'entraîne comme toi.
         </p>
       </div>
 

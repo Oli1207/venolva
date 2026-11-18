@@ -40,8 +40,8 @@ class OtpRequestView(APIView):
         """Envoie le code par e-mail. En développement le backend e-mail écrit le message dans la console."""
         minutes = max(1, cfg().otp_ttl_seconds // 60)
         send_mail(
-            subject=f"Ton code Djinzin : {code}",
-            message=f"Ton code de connexion Djinzin est {code}.\n\nIl est valable {minutes} minutes. Si tu n'as rien demandé, ignore ce message.",
+            subject=f"Ton code Venolva : {code}",
+            message=f"Ton code de connexion Venolva est {code}.\n\nIl est valable {minutes} minutes. Si tu n'as rien demandé, ignore ce message.",
             from_email=None,
             recipient_list=[email],
         )

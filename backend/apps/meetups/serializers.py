@@ -33,7 +33,7 @@ class MeetupSerializer(serializers.ModelSerializer):
 class MeetupCreateSerializer(serializers.Serializer):
     partner = serializers.PrimaryKeyRelatedField(queryset=User.objects.filter(is_active=True))
     starts_at = serializers.DateTimeField()
-    gym = serializers.IntegerField(required=False, allow_null=True)
+    gym = serializers.UUIDField(required=False, allow_null=True)
     focus = serializers.CharField(required=False, allow_blank=True, max_length=80)
 
     def validate_starts_at(self, value):

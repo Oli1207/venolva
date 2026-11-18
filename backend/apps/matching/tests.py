@@ -51,7 +51,7 @@ class MatchEndpointTests(APITestCase):
         res = client_for(self.me).get("/api/matches/")
         self.assertEqual(res.status_code, 200)
         ids = [r["id"] for r in res.json()]
-        self.assertEqual(ids, [best.id, mid.id])
+        self.assertEqual(ids, [str(best.id), str(mid.id)])
         self.assertNotIn(self.me.id, ids)
 
     def test_hidden_and_unfinished_profiles_are_not_listed(self):
@@ -71,11 +71,11 @@ class MatchEndpointTests(APITestCase):
         ids = [r["id"] for r in client_for(self.me).get("/api/matches/").json()]
         self.assertNotIn(weak.id, ids)
         ids = [r["id"] for r in client_for(self.me).get("/api/matches/?min=0").json()]
-        self.assertIn(weak.id, ids)
+        self.assertIn(str(weak.id), ids)
 
     def test_punctuality_is_hidden_when_the_member_opts_out(self):
         other = make_member("Awa K.", gym=self.gym, show_punctuality=False)
-        row = next(r for r in client_for(self.me).get("/api/matches/").json() if r["id"] == other.id)
+        row = next(r for r in client_for(self.me).get("/api/matches/").json() if r["id"] == str(other.id))
         self.assertIsNone(row["punctuality"])
 
     def test_requires_authentication(self):

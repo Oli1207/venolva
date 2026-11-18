@@ -1,3 +1,6 @@
+import uuid
+
+from django.core.serializers.json import DjangoJSONEncoder
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -63,7 +66,7 @@ class PlatformSettings(models.Model):
 GROUPS = [("finance", "Finance"), ("ambassadors", "Ambassadeurs"), ("promo", "À la une"), ("feed", "Fil d'actualité"), ("bookings", "Réservations et marché"), ("auth", "Connexion par code")]
 SCHEMA = [
     dict(key="commission_booking_pct", group="finance", label="Commission sur les réservations de pros", unit="%", min=0, max=50,
-         help="Part de Djinzin retenue sur chaque réservation payée en ligne. Elle est déduite de ce que reçoit le pro, le client paie le même prix."),
+         help="Part de Venolva retenue sur chaque réservation payée en ligne. Elle est déduite de ce que reçoit le pro, le client paie le même prix."),
     dict(key="commission_class_pct", group="finance", label="Commission sur les cours collectifs", unit="%", min=0, max=50,
          help="Même principe pour les cours payants des salles."),
     dict(key="payment_mode", group="finance", label="Prestataires de paiement", type="choice",
@@ -77,8 +80,8 @@ SCHEMA = [
          help="Un client qui annule plus tôt est remboursé. Plus tard, le pro garde la somme. Si c'est le pro qui annule, le client est toujours remboursé."),
     dict(key="price_min_fcfa", group="finance", label="Prix minimum d'un article, service ou formule", unit="FCFA", min=100, max=1_000_000, help=""),
     dict(key="price_max_fcfa", group="finance", label="Prix maximum d'un article, service ou formule", unit="FCFA", min=1000, max=50_000_000, help=""),
-    dict(key="ambassador_share_pct", group="ambassadors", label="Part de l'ambassadeur sur les commissions de Djinzin", unit="%", min=0, max=100,
-         help="Proposée par défaut à la création d'un contrat. Elle se calcule sur ce que Djinzin gagne (la commission), jamais sur l'argent des pros. Chaque contrat garde son propre taux."),
+    dict(key="ambassador_share_pct", group="ambassadors", label="Part de l'ambassadeur sur les commissions de Venolva", unit="%", min=0, max=100,
+         help="Proposée par défaut à la création d'un contrat. Elle se calcule sur ce que Venolva gagne (la commission), jamais sur l'argent des pros. Chaque contrat garde son propre taux."),
     dict(key="ambassador_contract_months", group="ambassadors", label="Durée d'un contrat d'ambassadeur", unit="mois", min=1, max=36,
          help="Proposée par défaut. Le renouvellement crée un nouveau contrat de même durée."),
     dict(key="featured_slots", group="promo", label="Places « À la une » en même temps", unit="places", min=1, max=20,
@@ -108,6 +111,8 @@ SCHEMA_BY_KEY = {s["key"]: s for s in SCHEMA}
 class CommissionOverride(models.Model):
     """Commission particulière pour un vendeur (partenariat, offre de lancement…). Elle remplace le taux par défaut."""
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
     class Purpose(models.TextChoices):
         ALL = "all", "Tous les paiements"
         BOOKING = "booking", "Réservations de pros"
@@ -127,10 +132,12 @@ class CommissionOverride(models.Model):
 class AuditLog(models.Model):
     """Trace de chaque action d'administration : qui, quoi, quand, et la valeur avant et après."""
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
     actor = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL, related_name="+")
     action = models.CharField(max_length=60, db_index=True)
     target = models.CharField(max_length=80, blank=True)
-    detail = models.JSONField(default=dict, blank=True)
+    detail = models.JSONField(default=dict, blank=True, encoder=DjangoJSONEncoder)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

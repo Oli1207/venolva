@@ -18,7 +18,7 @@ export default function Dashboard() {
     <Page title="Tableau de bord" sub="Ce qui demande ton attention, et l'état des paiements sur les 30 derniers jours.">
       {!d.commission_set && (
         <div className="confirm" style={{ marginTop: 0, marginBottom: 22 }}>
-          <b>La commission est à 0 %.</b> Djinzin ne retient rien sur les paiements. <Link to="/admin/reglages" style={{ textDecoration: "underline" }}>Régler la commission</Link>
+          <b>La commission est à 0 %.</b> Venolva ne retient rien sur les paiements. <Link to="/admin/reglages" style={{ textDecoration: "underline" }}>Régler la commission</Link>
         </div>
       )}
 
@@ -36,7 +36,7 @@ export default function Dashboard() {
         <h2>Argent, 30 jours</h2>
         <div className="tiles">
           <Tile value={fmtPrice(d.payments_30d.gross)} label={`Encaissé (${d.payments_30d.count} paiements)`} />
-          <Tile value={fmtPrice(d.payments_30d.fees)} label="Commission Djinzin" />
+          <Tile value={fmtPrice(d.payments_30d.fees)} label="Commission Venolva" />
           <Tile value={fmtPrice(d.payouts.available)} label="Disponible à reverser" to="/admin/reversements" alert={d.payouts.available > 0} />
           <Tile value={fmtPrice(d.payouts.pending)} label="Reversements à verser" to="/admin/reversements" />
           <Tile value={fmtPrice(d.payouts.paid_total)} label="Déjà reversé, au total" />

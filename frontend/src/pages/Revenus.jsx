@@ -43,7 +43,7 @@ export default function Revenus() {
         <div className="k">Disponible</div>
         <div className="h" style={{ fontSize: 46, letterSpacing: "-0.05em", lineHeight: 1.05, marginTop: 4 }}>{fmtPrice(b.available)}</div>
         <p className="small muted" style={{ margin: "8px 0 0", lineHeight: 1.5 }}>
-          Après chaque séance, l'argent reste {data.hold_days} jour{data.hold_days > 1 ? "s" : ""} en attente, puis il est versé par l'équipe Djinzin dès que ton solde disponible atteint {fmtPrice(data.min_payout)}.
+          Après chaque séance, l'argent reste {data.hold_days} jour{data.hold_days > 1 ? "s" : ""} en attente, puis il est versé par l'équipe Venolva dès que ton solde disponible atteint {fmtPrice(data.min_payout)}.
         </p>
       </div>
 

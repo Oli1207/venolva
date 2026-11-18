@@ -64,11 +64,11 @@ class PublicProfileTests(APITestCase):
     def test_list_carries_rating_and_member_count(self):
         GymReview.objects.create(gym=self.gym, user=self.me, rating=4)
         GymReview.objects.create(gym=self.gym, user=make_member("Awa K."), rating=5)
-        row = next(g for g in client_for(self.me).get("/api/gyms/").json() if g["id"] == self.gym.id)
+        row = next(g for g in client_for(self.me).get("/api/gyms/").json() if g["id"] == str(self.gym.id))
         self.assertEqual((row["rating_avg"], row["reviews_count"], row["members_count"]), (4.5, 2, 1))
 
     def test_unknown_gym_is_404(self):
-        self.assertEqual(client_for(self.me).get("/api/gyms/9999/").status_code, 404)
+        self.assertEqual(client_for(self.me).get("/api/gyms/00000000-0000-0000-0000-000000000001/").status_code, 404)
 
     def test_requires_authentication(self):
         self.assertEqual(APIClient().get(f"/api/gyms/{self.gym.id}/").status_code, 401)
@@ -341,4 +341,4 @@ class ManagerClassesAndRequestsTests(APITestCase):
         self.assertEqual(client_for(rival).post(f"/api/my/gym/requests/{rid}/accept/").status_code, 404)
 
     def test_unknown_request_action(self):
-        self.assertEqual(self.c.post("/api/my/gym/requests/1/explode/").status_code, 404)
+        self.assertEqual(self.c.post("/api/my/gym/requests/00000000-0000-0000-0000-000000000001/explode/").status_code, 404)

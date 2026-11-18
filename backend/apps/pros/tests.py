@@ -95,20 +95,20 @@ class DirectoryTests(APITestCase):
         make_pro("Pas validé", verified=False)
         make_pro("Sans service", with_service=False)
         rows = client_for(self.viewer).get("/api/pros/").json()
-        self.assertEqual([r["person"]["id"] for r in rows], [ok.id])
+        self.assertEqual([r["person"]["id"] for r in rows], [str(ok.id)])
         self.assertEqual(rows[0]["min_price"], 10000)
 
     def test_type_filter(self):
         make_pro("Coach Serge")
         nutri, _ = make_pro("Fatou D.", pro_type="nutrition")
         rows = client_for(self.viewer).get("/api/pros/?type=nutrition").json()
-        self.assertEqual([r["person"]["id"] for r in rows], [nutri.id])
+        self.assertEqual([r["person"]["id"] for r in rows], [str(nutri.id)])
 
     def test_detail_lists_only_active_services(self):
         pro, svc = make_pro()
         Service.objects.create(owner=pro, name="Caché", price=5000, modes=["gym"], active=False)
         res = client_for(self.viewer).get(f"/api/pros/{pro.id}/").json()
-        self.assertEqual([s["id"] for s in res["services"]], [svc.id])
+        self.assertEqual([s["id"] for s in res["services"]], [str(svc.id)])
         self.assertEqual(res["weekdays"], [0, 1, 2, 3, 4, 5, 6])
 
     def test_unvalidated_pro_has_no_public_page(self):

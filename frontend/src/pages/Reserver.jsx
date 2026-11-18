@@ -12,7 +12,7 @@ export default function Reserver() {
   const { data: pro, loading, error } = useFetch(`/pros/${id}/`);
   const { busy, error: bookError, run } = useAction();
 
-  const [serviceId, setServiceId] = useState(params.get("service") ? Number(params.get("service")) : null);
+  const [serviceId, setServiceId] = useState(params.get("service") || null);
   const days = useMemo(() => nextDays(8), []);
   const [day, setDay] = useState(dateKey(days[0]));
   const [slots, setSlots] = useState(null);
@@ -45,7 +45,7 @@ export default function Reserver() {
     run(async () => {
       await api.post("/bookings/", {
         service: service.id, starts_at: time, mode, payment_method: "cash",
-        ...(duo ? { partner: Number(partner) } : {}),
+        ...(duo ? { partner } : {}),
       });
       nav("/seances?tab=bookings", { replace: true });
     });

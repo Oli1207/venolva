@@ -34,7 +34,7 @@ export default function Vendre() {
     run(async () => {
       const listing = await api.post("/listings/", {
         title: f.title.trim(), description: f.description.trim(), price: Number(f.price), category: f.category,
-        condition: f.condition, handover_at_gym: f.handover && !!f.gym, gym: f.gym ? Number(f.gym) : null,
+        condition: f.condition, handover_at_gym: f.handover && !!f.gym, gym: f.gym || null,
       });
       let failed = 0;
       for (const p of photos) {

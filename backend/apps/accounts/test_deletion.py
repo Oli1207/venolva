@@ -1,3 +1,4 @@
+import uuid
 from datetime import timedelta
 
 from django.utils import timezone
@@ -56,7 +57,7 @@ class DeleteAccountTests(APITestCase):
 
     def test_blocked_by_money_owed_and_by_owning_a_gym(self):
         client = make_member("Client")
-        Payment.objects.create(user=client, payee=self.me, purpose="booking", target_id=1, amount=10000, fee=1000, net=9000, status="paid", reference="r1", provider="paystack", method="wave")
+        Payment.objects.create(user=client, payee=self.me, purpose="booking", target_id=uuid.uuid4(), amount=10000, fee=1000, net=9000, status="paid", reference="r1", provider="paystack", method="wave")
         self.assertEqual(self.delete().status_code, 409)
         Payment.objects.all().delete()
         gym = make_gym()

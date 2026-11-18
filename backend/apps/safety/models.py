@@ -1,3 +1,4 @@
+import uuid
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
@@ -5,6 +6,8 @@ from django.db.models import Q
 
 class Block(models.Model):
     """Un membre en bloque un autre : ils ne se voient plus et ne peuvent plus se parler."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     blocker = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="blocks_made")
     blocked = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="blocks_received")
@@ -20,6 +23,8 @@ class Block(models.Model):
 
 class ContentReport(models.Model):
     """Signalement d'un membre ou d'une publication, traité par l'équipe."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     class Kind(models.TextChoices):
         USER = "user", "Membre"

@@ -1,3 +1,4 @@
+import uuid
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
@@ -8,6 +9,8 @@ class Feature(models.Model):
 
     Pour l'instant c'est l'équipe qui l'accorde (gratuitement). Les champs `sponsored`, `price_fcfa` et
     `payment_reference` sont prévus pour qu'elle devienne payante sans changer le fonctionnement."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     class Kind(models.TextChoices):
         POST = "post", "Publication"
@@ -52,6 +55,8 @@ class Feature(models.Model):
 
 class FeatureEvent(models.Model):
     """Une vue ou un clic, compté une seule fois par membre et par jour pour que les chiffres restent honnêtes."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     feature = models.ForeignKey(Feature, on_delete=models.CASCADE, related_name="events")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="+")

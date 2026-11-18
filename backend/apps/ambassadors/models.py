@@ -1,3 +1,4 @@
+import uuid
 from datetime import date
 
 from django.conf import settings
@@ -6,7 +7,9 @@ from django.db import models
 
 
 class Ambassador(models.Model):
-    """Une personne qui représente Djinzin et touche un pourcentage de ce que la plateforme gagne."""
+    """Une personne qui représente Venolva et touche un pourcentage de ce que la plateforme gagne."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="ambassador")
     notes = models.CharField(max_length=300, blank=True)
@@ -19,8 +22,10 @@ class Ambassador(models.Model):
 class Contract(models.Model):
     """Un contrat de durée fixe (6 mois par défaut), renouvelable par un nouveau contrat.
 
-    Base du pourcentage : les commissions que Djinzin perçoit (jamais l'argent des pros), une fois la séance rendue
+    Base du pourcentage : les commissions que Venolva perçoit (jamais l'argent des pros), une fois la séance rendue
     et le délai d'attente passé, donc après toute possibilité de remboursement."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     ambassador = models.ForeignKey(Ambassador, on_delete=models.CASCADE, related_name="contracts")
     start_date = models.DateField()
@@ -60,6 +65,8 @@ class Contract(models.Model):
 class Statement(models.Model):
     """Relevé mensuel : ce que l'ambassadeur a gagné sur un mois, figé au moment où on le génère."""
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
     class Status(models.TextChoices):
         PENDING = "pending", "À verser"
         PAID = "paid", "Versé"
@@ -67,7 +74,7 @@ class Statement(models.Model):
 
     contract = models.ForeignKey(Contract, on_delete=models.PROTECT, related_name="statements")
     month = models.DateField()  # premier jour du mois
-    fees_total = models.PositiveIntegerField()  # commissions de Djinzin prises en compte (FCFA)
+    fees_total = models.PositiveIntegerField()  # commissions de Venolva prises en compte (FCFA)
     share_pct = models.PositiveSmallIntegerField()  # taux appliqué, conservé pour l'historique
     amount = models.PositiveIntegerField()  # part de l'ambassadeur (FCFA)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING, db_index=True)
@@ -83,6 +90,8 @@ class Statement(models.Model):
 
 class StatementLine(models.Model):
     """Un paiement compté dans un relevé. Un paiement ne peut apparaître qu'une seule fois, tous relevés confondus."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     statement = models.ForeignKey(Statement, on_delete=models.CASCADE, related_name="lines")
     payment = models.OneToOneField("payments.Payment", on_delete=models.PROTECT, related_name="statement_line")

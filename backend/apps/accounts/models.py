@@ -1,3 +1,4 @@
+import uuid
 import re
 
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
@@ -60,6 +61,8 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     """Un seul compte pour tout le monde. Le statut pro s'ajoute dessus."""
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
     class ProType(models.TextChoices):
         COACH = "coach", "Coach sportif"
         GYM = "gym", "Salle de sport"
@@ -92,6 +95,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Profile(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     class Level(models.TextChoices):
         BEGINNER = "debutant", "Débutant"
         INTERMEDIATE = "intermediaire", "Intermédiaire"
@@ -134,6 +138,8 @@ class Profile(models.Model):
 
 class OtpCode(models.Model):
     """Code à usage unique envoyé par e-mail. Seul un hash est stocké."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     email = models.EmailField(db_index=True)
     code_hash = models.CharField(max_length=128)

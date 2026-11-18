@@ -2,6 +2,8 @@ from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from config.ids import uuid_list
+
 from .models import Notification
 
 
@@ -29,5 +31,5 @@ class NotificationsReadView(APIView):
         else:
             ids = request.data.get("ids")
             if isinstance(ids, list):
-                qs.filter(pk__in=[i for i in ids if isinstance(i, int)]).update(read_at=timezone.now())
+                qs.filter(pk__in=uuid_list(ids, 200)).update(read_at=timezone.now())
         return Response({"unread": Notification.objects.filter(user=request.user, read_at__isnull=True).count()})

@@ -1,3 +1,4 @@
+import uuid
 """Tests de l'administration : réglages, commissions, reversements, remboursements, droits d'accès."""
 import itertools
 from datetime import timedelta
@@ -48,10 +49,10 @@ def set_cfg(**values):
     return obj
 
 
-def paid_payment(payee, net=9000, amount=10000, ended_days_ago=5, payer=None, purpose="booking", target=1, status="paid"):
+def paid_payment(payee, net=9000, amount=10000, ended_days_ago=5, payer=None, purpose="booking", target=None, status="paid"):
     """Un paiement déjà encaissé, dont le service a eu lieu il y a quelques jours."""
     return Payment.objects.create(
-        user=payer or make_member("Client"), purpose=purpose, target_id=target, amount=amount, fee=amount - net, net=net,
+        user=payer or make_member("Client"), purpose=purpose, target_id=target or uuid.uuid4(), amount=amount, fee=amount - net, net=net,
         provider="jeko", method="wave", reference=f"DJZ-t{next(_ref)}", status=status, paid_at=timezone.now(), payee=payee,
         service_ends_at=timezone.now() - timedelta(days=ended_days_ago),
     )
@@ -172,7 +173,7 @@ class SettingsTests(APITestCase):
         self.patch(commission_booking_pct=5)
         rows = self.c.get("/api/admin/audit/?action=settings").json()["results"]
         self.assertEqual([r["action"] for r in rows], ["settings.update"])
-        self.assertEqual(rows[0]["actor"]["id"], self.staff.id)
+        self.assertEqual(rows[0]["actor"]["id"], str(self.staff.id))
         self.assertEqual(self.c.get("/api/admin/audit/?action=payout").json()["results"], [])
 
 
@@ -248,10 +249,10 @@ class CommissionTests(APITestCase):
         self.assertEqual(CommissionOverride.objects.count(), 1)
         self.assertEqual(CommissionOverride.objects.get().pct, 6)
         rows = self.c.get("/api/admin/commissions/").json()
-        self.assertEqual((rows[0]["user"]["id"], rows[0]["pct"]), (self.pro.id, 6))
+        self.assertEqual((rows[0]["user"]["id"], rows[0]["pct"]), (str(self.pro.id), 6))
         self.assertEqual(self.c.delete(f"/api/admin/commissions/{rows[0]['id']}/").status_code, 204)
         self.assertEqual(CommissionOverride.objects.count(), 0)
-        self.assertEqual(list(AuditLog.objects.values_list("action", flat=True).order_by("id")), ["commission.set", "commission.set", "commission.delete"])
+        self.assertEqual(list(AuditLog.objects.values_list("action", flat=True).order_by("created_at")), ["commission.set", "commission.set", "commission.delete"])
 
     def test_validation(self):
         def post(**b):
@@ -389,7 +390,7 @@ class PayoutTests(APITestCase):
         paid_payment(self.pro, net=9000)
         c = client_for(self.admin)
         payees = c.get("/api/admin/payees/").json()
-        self.assertEqual((payees[0]["user"]["id"], payees[0]["available"], payees[0]["account"]), (self.pro.id, 9000, None))
+        self.assertEqual((payees[0]["user"]["id"], payees[0]["available"], payees[0]["account"]), (str(self.pro.id), 9000, None))
         self.assertEqual(c.post("/api/admin/payouts/", {"payee": self.pro.id}, format="json").status_code, 400)  # pas de compte
         give_account(self.pro)
         res = c.post("/api/admin/payouts/", {"payee": self.pro.id}, format="json")
@@ -590,7 +591,7 @@ class PaymentsAdminTests(APITestCase):
         self.assertEqual(c.get("/api/admin/payments/?provider=paystack").json()["count"], 0)
         self.assertEqual(c.get("/api/admin/payments/?q=Client").json()["count"], 2)
         row = c.get("/api/admin/payments/?status=paid").json()["results"][0]
-        self.assertEqual((row["payee"]["id"], row["amount"], row["net"]), (self.pro.id, 10000, 9000))
+        self.assertEqual((row["payee"]["id"], row["amount"], row["net"]), (str(self.pro.id), 10000, 9000))
 
     def test_dashboard_numbers(self):
         paid_payment(self.pro, net=9000, amount=10000)
@@ -653,7 +654,7 @@ class GymAndModerationAdminTests(APITestCase):
         gym = make_gym("Salle X")
         boss = make_member("Futur gérant")
         res = self.admin.patch(f"/api/admin/gyms/{gym.id}/", {"owner_phone": boss.phone, "verified": True}, format="json")
-        self.assertEqual((res.status_code, res.json()["owner"]["id"], res.json()["verified"]), (200, boss.id, True))
+        self.assertEqual((res.status_code, res.json()["owner"]["id"], res.json()["verified"]), (200, str(boss.id), True))
         self.assertEqual(client_for(boss).get("/api/my/gym/").status_code, 200)  # l'accès gérant s'ouvre
         self.admin.patch(f"/api/admin/gyms/{gym.id}/", {"owner_phone": ""}, format="json")
         gym.refresh_from_db()
@@ -693,7 +694,7 @@ class UserAdminTests(APITestCase):
 
     def test_search_and_pagination_shape(self):
         res = client_for(self.admin).get("/api/admin/users/?q=Awa").json()
-        self.assertEqual((res["count"], res["results"][0]["id"]), (1, self.member.id))
+        self.assertEqual((res["count"], res["results"][0]["id"]), (1, str(self.member.id)))
         self.assertIn("phone", res["results"][0])
 
     def test_suspended_accounts_are_locked_out_immediately(self):

@@ -12,7 +12,7 @@ from apps.chat.models import Message
 
 from .models import Listing, Report
 
-TMP_MEDIA = tempfile.mkdtemp(prefix="djinzin-test-media-")
+TMP_MEDIA = tempfile.mkdtemp(prefix="venolva-test-media-")
 
 
 def png_bytes(size=(40, 30), mode="RGB", color=(200, 30, 30)):
@@ -48,7 +48,7 @@ class ListingTests(APITestCase):
         res = self.sell()
         self.assertEqual(res.status_code, 201, res.content)
         body = res.json()
-        self.assertEqual((body["status"], body["mine"], body["seller"]["id"]), ("active", True, self.seller.id))
+        self.assertEqual((body["status"], body["mine"], body["seller"]["id"]), ("active", True, str(self.seller.id)))
 
     def test_validation(self):
         self.assertEqual(self.sell(price=100).status_code, 400)

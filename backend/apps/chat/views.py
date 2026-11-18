@@ -8,6 +8,7 @@ from rest_framework.views import APIView
 
 from apps.accounts.models import User
 from apps.safety.services import blocked_ids
+from config.ids import as_uuid
 
 from .models import Conversation, Message
 from .services import get_or_create_conversation
@@ -88,9 +89,9 @@ class MessageListCreateView(APIView):
     def get(self, request, pk):
         conv = self._conv(request, pk)
         qs = conv.messages.all()
-        after = request.query_params.get("after")
-        if after and after.isdigit():
-            qs = qs.filter(id__gt=int(after))
+        last = conv.messages.filter(pk=as_uuid(request.query_params.get("after"))).first() if request.query_params.get("after") else None
+        if last is not None:
+            qs = qs.filter(created_at__gt=last.created_at)  # les identifiants ne se suivent plus : on se repère à la date
         msgs = list(qs.order_by("created_at")[:200])
         conv.messages.filter(read_at__isnull=True).exclude(sender=request.user).update(read_at=timezone.now())
         return Response(MessageSerializer(msgs, many=True, context={"request": request}).data)

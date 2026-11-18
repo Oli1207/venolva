@@ -1,5 +1,5 @@
 // Client API : jetons dans localStorage, rafraîchissement automatique sur 401.
-const KEY = "djinzin.tokens";
+const KEY = "venolva.tokens";
 
 export const tokens = {
   get() {

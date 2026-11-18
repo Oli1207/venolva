@@ -1,4 +1,4 @@
-"""Réglages Django de Djinzin."""
+"""Réglages Django de Venolva."""
 import os
 from datetime import timedelta
 from pathlib import Path
@@ -98,6 +98,7 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 8 * 1024 * 1024
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
+    "EXCEPTION_HANDLER": "config.exceptions.api_exception_handler",
     "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
@@ -121,7 +122,7 @@ CORS_ALLOWED_ORIGINS = [
 # --- Paiement en ligne : Jeko (mobile money) et Paystack (carte, et mobile money en repli) ---------------------------
 # Les clés viennent de l'environnement (backend/.env, jamais dans git). Sans clés, le paiement en ligne est simplement indisponible.
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
-PAYMENT_EMAIL_DOMAIN = os.getenv("PAYMENT_EMAIL_DOMAIN", "pay.djinzin.app")  # repli si un membre n'a pas d'e-mail (ex. compte ancien)
+PAYMENT_EMAIL_DOMAIN = os.getenv("PAYMENT_EMAIL_DOMAIN", "pay.venolva.app")  # repli si un membre n'a pas d'e-mail (ex. compte ancien)
 # Commission, mode de paiement et autres réglages métier : modifiables dans l'administration de l'app (PlatformSettings).
 
 PAYSTACK_SECRET_KEY = os.getenv("PAYSTACK_SECRET_KEY", "")
@@ -152,4 +153,4 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
 EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "true").lower() == "true"
 EMAIL_TIMEOUT = 10
-DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "Djinzin <no-reply@djinzin.app>")
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "Venolva <no-reply@venolva.app>")

@@ -12,6 +12,7 @@ from .exceptions import PaymentUnavailable
 from .models import Payment, Payout, PayoutAccount, WebhookEvent
 from .providers import jeko, paystack
 from .services import PaymentRefused, available_methods, balance_for, fulfill, start_payment, verify_with_provider
+from config.ids import as_uuid
 
 logger = logging.getLogger(__name__)
 
@@ -36,9 +37,8 @@ class PaymentCreateView(APIView):
 
     def post(self, request):
         purpose, method = request.data.get("purpose"), request.data.get("method")
-        try:
-            target = int(request.data.get("target"))
-        except (TypeError, ValueError):
+        target = as_uuid(request.data.get("target"))
+        if target is None:
             return Response({"target": ["Cible invalide."]}, status=status.HTTP_400_BAD_REQUEST)
         try:
             payment = start_payment(request.user, str(purpose), target, str(method))

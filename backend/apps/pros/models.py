@@ -1,3 +1,4 @@
+import uuid
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
@@ -5,6 +6,8 @@ from django.utils import timezone
 
 class ProProfile(models.Model):
     """Dossier d'un professionnel. La coche verte n'est donnée qu'après validation par l'équipe."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     class Status(models.TextChoices):
         PENDING = "pending", "En cours de vérification"
@@ -42,6 +45,7 @@ class ProProfile(models.Model):
 
 
 class Service(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     class Kind(models.TextChoices):
         TRIAL = "trial", "Séance d'essai"
         SINGLE = "single", "Séance"
@@ -75,6 +79,8 @@ class Service(models.Model):
 class Availability(models.Model):
     """Plage hebdomadaire pendant laquelle le pro prend des rendez-vous."""
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
     pro = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="availabilities")
     weekday = models.PositiveSmallIntegerField()  # 0 = lundi
     start = models.TimeField()
@@ -85,6 +91,7 @@ class Availability(models.Model):
 
 
 class Booking(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     class Status(models.TextChoices):
         PENDING = "pending", "En attente"
         CONFIRMED = "confirmed", "Confirmée"

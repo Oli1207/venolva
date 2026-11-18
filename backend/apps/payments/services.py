@@ -73,7 +73,7 @@ def _paid_sum(booking: Booking) -> int:
     return Payment.objects.filter(purpose="booking", target_id=booking.pk, status="paid").aggregate(s=Sum("amount"))["s"] or 0
 
 
-def resolve_target(user, purpose: str, target_id: int):
+def resolve_target(user, purpose: str, target_id):
     """Renvoie (objet, montant en FCFA, bénéficiaire, fin du service). Lève PaymentRefused si ce paiement n'est pas permis."""
     if purpose == Payment.Purpose.BOOKING:
         booking = Booking.objects.select_related("pro", "client", "partner").filter(pk=target_id).first()
@@ -109,7 +109,7 @@ def resolve_target(user, purpose: str, target_id: int):
 # --- Création -------------------------------------------------------------------------------------------------------
 
 
-def start_payment(user, purpose: str, target_id: int, method: str) -> Payment:
+def start_payment(user, purpose: str, target_id, method: str) -> Payment:
     _, amount, payee, ends_at = resolve_target(user, purpose, target_id)
     providers = providers_for(method)
     if not providers:
@@ -126,7 +126,7 @@ def start_payment(user, purpose: str, target_id: int, method: str) -> Payment:
             else:
                 data = paystack.initialize(
                     email=user.email or f"u{user.pk}@{settings.PAYMENT_EMAIL_DOMAIN}", amount_fcfa=amount, reference=reference,
-                    callback_url=callback, metadata={"purpose": purpose, "target": target_id, "user": user.pk},
+                    callback_url=callback, metadata={"purpose": purpose, "target": str(target_id), "user": str(user.pk)},
                 )
                 url, provider_id = data.get("authorization_url"), ""
         except PaymentUnavailable as exc:
@@ -223,7 +223,7 @@ def verify_with_provider(payment: Payment) -> Payment:
 # --- Remboursements ---------------------------------------------------------------------------------------------------
 
 
-def flag_refunds(purpose: str, target_id: int, *, refund: bool) -> int:
+def flag_refunds(purpose: str, target_id, *, refund: bool) -> int:
     """Quand une réservation payée est annulée : si le client doit être remboursé, les paiements passent « à rembourser »
     (l'administrateur rembourse ensuite chez le prestataire). Sinon ils restent payés et le vendeur garde la somme.
     Un paiement déjà inclus dans un reversement n'est pas touché."""

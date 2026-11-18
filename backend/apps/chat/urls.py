@@ -5,5 +5,5 @@ from .views import ConversationListView, ConversationStartView, MessageListCreat
 urlpatterns = [
     path("conversations/", ConversationListView.as_view()),
     path("conversations/start/", ConversationStartView.as_view()),
-    path("conversations/<int:pk>/messages/", MessageListCreateView.as_view()),
+    path("conversations/<uuid:pk>/messages/", MessageListCreateView.as_view()),
 ]

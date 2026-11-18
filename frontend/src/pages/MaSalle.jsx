@@ -208,14 +208,14 @@ function Requests() {
 export default function MaSalle() {
   const gym = useFetch("/my/gym/");
   const [tab, setTab] = useState("infos");
-  useEffect(() => { document.title = "Ma salle · Djinzin"; return () => { document.title = "Djinzin"; }; }, []);
+  useEffect(() => { document.title = "Ma salle · Venolva"; return () => { document.title = "Venolva"; }; }, []);
 
   const header = (
     <div className="topbar" style={{ paddingBottom: 14 }}><BackButton to="/profil" /><h1 className="h" style={{ fontSize: 28, lineHeight: 1 }}>Ma salle</h1></div>
   );
   if (gym.loading) return <main className="page bare">{header}<Loading /></main>;
   if (gym.error?.status === 404) return <main className="page bare">{header}<CreateGym onDone={gym.reload} /></main>;
-  if (gym.error?.status === 403) return <main className="page bare">{header}<Empty title="Réservé aux gérants">Envoie un dossier « Salle de sport » pour gérer ta salle sur Djinzin.<div style={{ marginTop: 16 }}><Link to="/pro/devenir" className="btn sm">Devenir pro</Link></div></Empty></main>;
+  if (gym.error?.status === 403) return <main className="page bare">{header}<Empty title="Réservé aux gérants">Envoie un dossier « Salle de sport » pour gérer ta salle sur Venolva.<div style={{ marginTop: 16 }}><Link to="/pro/devenir" className="btn sm">Devenir pro</Link></div></Empty></main>;
   if (gym.error) return <main className="page bare">{header}<Empty title="Impossible de charger ta salle">{gym.error.message}</Empty></main>;
 
   return (

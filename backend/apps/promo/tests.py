@@ -139,7 +139,7 @@ class FeaturedFirstTests(APITestCase):
             Service.objects.create(owner=p, name="Séance", price=5000, duration_min=60)
         services.create_direct(self.staff, "pro", b.id, 3)
         rows = self.c.get("/api/pros/").json()
-        self.assertEqual([r["person"]["id"] for r in rows][0], b.id)
+        self.assertEqual([r["person"]["id"] for r in rows][0], str(b.id))
         self.assertTrue(rows[0]["featured"])
         self.assertFalse(rows[1]["featured"])
 

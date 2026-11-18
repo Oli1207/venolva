@@ -27,7 +27,7 @@ function Card({ a, onChange }) {
       {a.gym && <div className="cr"><span className="l">Salle</span><span className="v">{a.gym}</span></div>}
       {a.bio && <p style={{ margin: 0, fontSize: 14, lineHeight: 1.5, color: "var(--ink-2)" }}>{a.bio}</p>}
       {a.review_note && <p className="small" style={{ margin: 0, color: "var(--accent-ink)" }}>Note : {a.review_note}</p>}
-      <p className="hint" style={{ margin: 0 }}>Vérifie la pièce d'identité et le diplôme ou le numéro d'ordre avant de valider : la coche verte engage Djinzin.</p>
+      <p className="hint" style={{ margin: 0 }}>Vérifie la pièce d'identité et le diplôme ou le numéro d'ordre avant de valider : la coche verte engage Venolva.</p>
       {rejecting ? (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <input aria-label="Motif du refus" className="input" placeholder="Motif, visible par le candidat" value={note} onChange={(e) => setNote(e.target.value)} maxLength={200} />

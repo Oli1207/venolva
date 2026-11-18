@@ -28,7 +28,7 @@ from .models import GROUPS, SCHEMA, SCHEMA_BY_KEY, AuditLog, CommissionOverride,
 
 
 class IsStaff(BasePermission):
-    message = "Réservé à l'équipe Djinzin."
+    message = "Réservé à l'équipe Venolva."
 
     def has_permission(self, request, view):
         u = request.user

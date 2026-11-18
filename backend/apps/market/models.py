@@ -1,9 +1,12 @@
+import uuid
 from django.conf import settings
 from django.db import models
 
 
 class Listing(models.Model):
     """Une annonce : n'importe quel membre peut vendre, avec un compte normal."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     class Category(models.TextChoices):
         WEIGHTS = "weights", "Poids"
@@ -42,6 +45,7 @@ class Listing(models.Model):
 
 
 class ListingPhoto(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="photos")
     image = models.ImageField(upload_to="listings/%Y/%m/")
     position = models.PositiveSmallIntegerField(default=0)
@@ -52,6 +56,8 @@ class ListingPhoto(models.Model):
 
 class Report(models.Model):
     """Signalement d'une annonce par un membre, traité dans le back-office."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     class Reason(models.TextChoices):
         SCAM = "scam", "Arnaque suspectée"

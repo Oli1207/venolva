@@ -24,7 +24,7 @@ class ProApplySerializer(serializers.Serializer):
     speciality = serializers.CharField(max_length=80, allow_blank=True, required=False)
     bio = serializers.CharField(max_length=300, allow_blank=True, required=False)
     credential = serializers.CharField(min_length=3, max_length=160)
-    gym = serializers.IntegerField(required=False, allow_null=True)
+    gym = serializers.UUIDField(required=False, allow_null=True)
     years_experience = serializers.IntegerField(min_value=0, max_value=60, required=False, allow_null=True)
 
 

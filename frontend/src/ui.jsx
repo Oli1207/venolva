@@ -27,8 +27,10 @@ export function Icon({ name, size = 22, stroke = 1.8, color }) {
 }
 
 const TINTS = ["t0", "t1", "t2", "t3"];
+// Les identifiants sont des UUID : on en tire un nombre stable pour choisir la couleur de l'avatar.
+const tintIndex = (id) => { let h = 0; for (const ch of String(id ?? "")) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h % TINTS.length; };
 export function Avatar({ person, size = 44 }) {
-  const tint = TINTS[(person?.id ?? 0) % TINTS.length];
+  const tint = TINTS[tintIndex(person?.id)];
   return (
     <div className={`av ${tint}`} style={{ width: size, height: size, fontSize: Math.round(size * 0.34) }} aria-hidden="true">
       {person?.initials || "?"}
@@ -87,7 +89,7 @@ export function Wordmark({ size = 24 }) {
         <circle cx="12" cy="20" r="8" stroke="#0D0D0D" strokeWidth="4.5" />
         <path d="M24 3v26" stroke="#FF6A13" strokeWidth="4.5" />
       </svg>
-      <span className="h" style={{ fontSize: size }}>djinzin</span>
+      <span className="h" style={{ fontSize: size }}>venolva</span>
     </div>
   );
 }

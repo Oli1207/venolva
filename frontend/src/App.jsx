@@ -19,6 +19,7 @@ import EditerProfil from "./pages/EditerProfil";
 import Notifications from "./pages/Notifications";
 import Publication from "./pages/Publication";
 import Reglages from "./pages/Reglages";
+import Accueil from "./pages/Accueil";
 import Ambassadrice from "./pages/Ambassadrice";
 import Article from "./pages/Article";
 import Binomes from "./pages/Binomes";
@@ -97,6 +98,7 @@ export default function App() {
         <Route path="utilisateurs" element={<Users />} />
         <Route path="journal" element={<Journal />} />
       </Route>
+      <Route path="/" element={<Accueil />} />
       <Route element={<MobileShell />}>
         <Route element={<Guest />}><Route path="/connexion" element={<Login />} /></Route>
         <Route path="/bienvenue" element={<Setup />} />

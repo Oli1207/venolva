@@ -25,7 +25,7 @@ export default function Publier() {
         kind: article ? "article" : buddy ? "buddy" : "text",
         title: article ? title.trim() : "",
         body: body.trim(),
-        gym: buddy && gym ? Number(gym) : null,
+        gym: buddy && gym ? gym : null,
         starts_at: buddy ? localToIso(when) : null,
       });
       nav(article ? `/publication/${made.id}` : "/fil", { replace: true });

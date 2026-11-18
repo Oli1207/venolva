@@ -1,4 +1,4 @@
-# Djinzin
+# Venolva
 
 Réseau social du sport pour la Côte d'Ivoire. L'idée de départ : ne plus aller seul à la salle, en trouvant un binôme qui a le même objectif, dans la même salle, aux mêmes heures.
 
@@ -125,7 +125,7 @@ Pages : tableau de bord, **réglages**, paiements, **reversements**, dossiers pr
 **Réglages** (page Réglages, modifiables sans toucher au code, avec confirmation avant enregistrement) : commission sur les réservations et sur les cours, mode de paiement (Jeko puis Paystack, ou un seul), délai avant reversement, reversement minimum, annulation gratuite, prix minimum et maximum, délai minimum de réservation, annonces et photos par membre, règles du code de connexion. Un taux de commission particulier peut être fixé par vendeur.
 
 **Argent** :
-- À chaque paiement, la commission (taux du vendeur, sinon taux par défaut) est calculée et figée : `fee` pour Djinzin, `net` pour le pro ou la salle. Le client paie le même prix.
+- À chaque paiement, la commission (taux du vendeur, sinon taux par défaut) est calculée et figée : `fee` pour Venolva, `net` pour le pro ou la salle. Le client paie le même prix.
 - Après la séance et le délai d'attente, le `net` devient disponible. L'administrateur crée un **reversement** (il regroupe tout le disponible d'un bénéficiaire), fait le virement hors de l'app (Wave, Orange, MTN…) ou via l'export CSV, puis note la référence. Les virements ne sont pas automatiques : aucun argent ne sort sans une action humaine.
 - Les pros et les salles voient leur solde et leur compte de réception dans **Mes revenus**.
 - **Annulations** : si le pro annule, le client est remboursé. Si le client annule au moins « annulation gratuite » heures avant, il est remboursé ; sinon le pro garde la somme. Un cours annulé par la salle rembourse tous les inscrits. Le paiement passe « à rembourser » : l'administrateur rembourse chez Jeko ou Paystack, puis le note dans la page Paiements.
@@ -135,7 +135,7 @@ Chaque action d'administration est inscrite au **journal** (auteur, date, valeur
 
 ## Ambassadeurs
 
-Un ambassadeur représente Djinzin et touche un pourcentage de **ce que la plateforme gagne** (sa commission), jamais de l'argent des pros et des salles. Page Ambassadeurs de l'administration, espace « Ambassadrice » dans le profil de la personne.
+Un ambassadeur représente Venolva et touche un pourcentage de **ce que la plateforme gagne** (sa commission), jamais de l'argent des pros et des salles. Page Ambassadeurs de l'administration, espace « Ambassadrice » dans le profil de la personne.
 
 - **Contrat** : durée fixe (6 mois par défaut), brouillon tant qu'il n'est pas signé, renouvelable en créant le contrat suivant (même taux et durée, modifiables), résiliable avant le terme. Deux contrats d'une même personne ne peuvent pas se chevaucher. Un brouillon ne rapporte rien.
 - **Gains** : la commission d'un paiement compte quand la séance a eu lieu et que le délai d'attente avant reversement est écoulé, donc quand plus aucun remboursement n'est possible. Seuls les paiements encaissés comptent, pas les remboursés, doublons ou paiements à vérifier.

@@ -11,6 +11,8 @@ from apps.gyms.models import Gym
 from apps.market.models import Listing
 from apps.notifications.services import notify
 
+from config.ids import as_uuid
+
 from .models import Feature, FeatureEvent
 
 TARGET_MODEL = {"post": Post, "gym": Gym, "listing": Listing}
@@ -27,7 +29,8 @@ def resolve_target(kind: str, target_id):
     model = User if kind == "pro" else TARGET_MODEL.get(kind)
     if model is None:
         raise PromoError("Type de contenu inconnu.")
-    obj = model.objects.filter(pk=target_id).first()
+    target = as_uuid(target_id)
+    obj = model.objects.filter(pk=target).first() if target else None
     if obj is None:
         raise PromoError("Contenu introuvable.")
     return obj

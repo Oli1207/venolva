@@ -36,7 +36,7 @@ export function PayBox({ purpose, target, amount, onCancel }) {
         <button type="button" className="btn sm" disabled={!method || busy} onClick={go}>{busy ? "Ouverture…" : "Continuer vers le paiement"}</button>
         <button type="button" className="link" onClick={onCancel}>Annuler</button>
       </div>
-      <p className="hint" style={{ margin: "10px 0 0" }}>Tu quittes Djinzin pour une page de paiement sécurisée. Nous ne voyons ni ton code secret ni ta carte.</p>
+      <p className="hint" style={{ margin: "10px 0 0" }}>Tu quittes Venolva pour une page de paiement sécurisée. Nous ne voyons ni ton code secret ni ta carte.</p>
     </div>
   );
 }

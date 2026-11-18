@@ -272,7 +272,7 @@ class AmbassadorApiTests(APITestCase):
 
     def test_staff_only(self):
         member = client_for(make_member("Simple"))
-        for method, url in (("get", "/api/admin/ambassadors/"), ("post", "/api/admin/ambassadors/"), ("get", "/api/admin/ambassadors/1/"), ("post", "/api/admin/contracts/1/sign/"), ("post", "/api/admin/statements/1/paid/")):
+        for method, url in (("get", "/api/admin/ambassadors/"), ("post", "/api/admin/ambassadors/"), ("get", "/api/admin/ambassadors/00000000-0000-0000-0000-000000000001/"), ("post", "/api/admin/contracts/00000000-0000-0000-0000-000000000001/sign/"), ("post", "/api/admin/statements/00000000-0000-0000-0000-000000000001/paid/")):
             self.assertEqual(getattr(member, method)(url).status_code, 403, url)
             self.assertEqual(getattr(APIClient(), method)(url).status_code, 401, url)
 
@@ -317,7 +317,7 @@ class AmbassadorApiTests(APITestCase):
         self.assertEqual(len(renewed["contracts"]), 2)
         self.assertEqual(self.c.post(f"/api/admin/contracts/{contract['id']}/renew/", {}, format="json").status_code, 400)
 
-        actions = list(AuditLog.objects.order_by("id").values_list("action", flat=True))
+        actions = list(AuditLog.objects.order_by("created_at").values_list("action", flat=True))
         self.assertEqual(actions, ["ambassador.create", "contract.create", "contract.sign", "statement.generate", "statement.paid", "contract.renew"])
 
     def test_contract_input_validation(self):
@@ -354,7 +354,7 @@ class AmbassadorApiTests(APITestCase):
         mine = Ambassador.objects.create(user=self.friend)
         c = signed_contract(mine, pct=20)
         body = client_for(self.friend).get("/api/my/ambassador/").json()
-        self.assertEqual((body["contract"]["id"], body["contract"]["share_pct"], body["statements"], body["totals"]), (c.id, 20, [], {"pending": 0, "paid": 0}))
+        self.assertEqual((body["contract"]["id"], body["contract"]["share_pct"], body["statements"], body["totals"]), (str(c.id), 20, [], {"pending": 0, "paid": 0}))
         self.assertEqual(len(body["contracts"]), 1)
 
     def test_my_space_shows_the_running_estimate_and_hides_cancelled_statements(self):

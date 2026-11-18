@@ -71,12 +71,14 @@ class AssemblyTests(APITestCase):
         self.assertEqual(insert_boosts(list("abcdef"), ["B"], 0), list("abcdef"))
 
     def test_rotation_puts_the_least_seen_first(self):
-        class F:
-            def __init__(self, id, views):
-                self.id, self.views = id, views
+        import uuid
 
-        fs = [F(1, 50), F(2, 3), F(3, 20)]
-        self.assertEqual(rotate_boosts(fs, 7, timezone.localdate())[0].id, 2)
+        class F:
+            def __init__(self, views):
+                self.id, self.views = uuid.uuid4(), views
+
+        fs = [F(50), F(3), F(20)]
+        self.assertEqual(rotate_boosts(fs, uuid.uuid4(), timezone.localdate())[0].views, 3)
 
 
 class FeedApiTests(APITestCase):
@@ -97,7 +99,7 @@ class FeedApiTests(APITestCase):
         local = mk(self.awa, hours_ago=3)
         distant = mk(self.far, hours_ago=2)
         ids = self.post_ids(self.feed())
-        self.assertLess(ids.index(local.id), ids.index(distant.id))
+        self.assertLess(ids.index(str(local.id)), ids.index(str(distant.id)))
 
     def test_blocked_hidden_and_expired_posts_are_not_shown(self):
         blocked = mk(self.far, "bloqué")
@@ -106,10 +108,10 @@ class FeedApiTests(APITestCase):
         past = mk(self.awa, "passée", kind="buddy", starts_at=timezone.now() - timedelta(hours=1))
         ok = mk(self.awa, "visible")
         ids = self.post_ids(self.feed())
-        self.assertEqual(ids, [ok.id])
-        self.assertNotIn(blocked.id, ids)
-        self.assertNotIn(hidden.id, ids)
-        self.assertNotIn(past.id, ids)
+        self.assertEqual(ids, [str(ok.id)])
+        self.assertNotIn(str(blocked.id), ids)
+        self.assertNotIn(str(hidden.id), ids)
+        self.assertNotIn(str(past.id), ids)
 
     def test_pagination_is_stable_and_complete(self):
         for i in range(30):
@@ -129,10 +131,10 @@ class FeedApiTests(APITestCase):
     def test_seen_posts_are_pushed_down(self):
         a = mk(self.awa, "a", hours_ago=2)
         b = mk(self.awa, "b", hours_ago=3)
-        self.assertEqual(self.post_ids(self.feed()), [a.id, b.id])
+        self.assertEqual(self.post_ids(self.feed()), [str(a.id), str(b.id)])
         for _ in range(3):
             self.assertEqual(self.c.post("/api/feed/seen/", {"ids": [a.id]}, format="json").status_code, 200)
-        self.assertEqual(self.post_ids(self.feed()), [b.id, a.id])
+        self.assertEqual(self.post_ids(self.feed()), [str(b.id), str(a.id)])
         self.assertEqual(PostImpression.objects.get(user=self.me, post=a).seen, 3)
 
     def test_own_posts_are_not_recorded_as_seen(self):
@@ -184,7 +186,7 @@ class BoostTests(APITestCase):
         self.assertEqual(types.count("feature"), 1)
         self.assertEqual(types.index("feature"), 5)  # feed_boost_every = 6
         ids = [r["post"]["id"] for r in self.feed() if r["type"] == "post"]
-        self.assertNotIn(art.id, ids)  # pas en double
+        self.assertNotIn(str(art.id), ids)  # pas en double
 
     def test_a_clicked_feature_stops_appearing_that_day(self):
         f = promo.create_direct(self.staff, "pro", self.pro.id, 3)

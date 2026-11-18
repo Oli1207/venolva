@@ -1,9 +1,12 @@
+import uuid
 from django.conf import settings
 from django.db import models
 
 
 class Payment(models.Model):
     """Un paiement en ligne. L'argent n'est considéré reçu qu'après confirmation signée du prestataire."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     class Purpose(models.TextChoices):
         BOOKING = "booking", "Réservation d'un pro"
@@ -21,9 +24,9 @@ class Payment(models.Model):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="payments")
     purpose = models.CharField(max_length=8, choices=Purpose.choices)
-    target_id = models.PositiveIntegerField()
+    target_id = models.UUIDField()
     amount = models.PositiveIntegerField(help_text="FCFA")
-    fee = models.PositiveIntegerField(default=0, help_text="Part de Djinzin, en FCFA")
+    fee = models.PositiveIntegerField(default=0, help_text="Part de Venolva, en FCFA")
     net = models.PositiveIntegerField(default=0, help_text="Part à reverser au vendeur du service, en FCFA")
     provider = models.CharField(max_length=10)  # paystack | jeko
     method = models.CharField(max_length=12)
@@ -52,6 +55,8 @@ class Payment(models.Model):
 class WebhookEvent(models.Model):
     """Journal des notifications reçues des prestataires (jamais de données de carte ni de numéro)."""
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
     class Outcome(models.TextChoices):
         PROCESSED = "processed", "Traité"
         IGNORED = "ignored", "Ignoré"
@@ -73,6 +78,8 @@ class WebhookEvent(models.Model):
 class PayoutAccount(models.Model):
     """Où verser l'argent d'un pro ou d'une salle (mobile money)."""
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
     class Method(models.TextChoices):
         WAVE = "wave", "Wave"
         ORANGE = "orange", "Orange Money"
@@ -88,6 +95,8 @@ class PayoutAccount(models.Model):
 
 class Payout(models.Model):
     """Un reversement : la somme des parts « net » d'un pro ou d'une salle, versée en une fois."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     class Status(models.TextChoices):
         PENDING = "pending", "À verser"

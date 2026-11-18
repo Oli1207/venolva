@@ -42,7 +42,7 @@ class AdminReportActionView(AdminView):
                 return bad("Ce signalement ne concerne pas une publication.")
             r.post.hidden = True
             r.post.save(update_fields=["hidden"])
-            notify(r.post.author, "post_hidden", "Une de tes publications a été masquée", "Elle ne respectait pas les règles de Djinzin.", "")
+            notify(r.post.author, "post_hidden", "Une de tes publications a été masquée", "Elle ne respectait pas les règles de Venolva.", "")
         elif action == "suspend_user":
             target = r.user if r.kind == "user" else r.post.author
             if target.is_staff:
