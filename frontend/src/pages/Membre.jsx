@@ -5,7 +5,8 @@ import { useAuth } from "../auth";
 import { Reasons, Score } from "../Common";
 import { useAction, useFetch } from "../hooks";
 import { defaultLocalInput, goalLabel, levelLabel, localToIso } from "../labels";
-import { Avatar, BackButton, Empty, Loading } from "./../ui";
+import { ReportSheet, Sheet, blockMember } from "../Safety";
+import { Avatar, BackButton, Empty, Icon, Loading } from "./../ui";
 import { useStartChat } from "./Binomes";
 
 export default function Membre() {
@@ -15,6 +16,9 @@ export default function Membre() {
   const { data: m, loading, error } = useFetch(`/members/${id}/`);
   const chat = useStartChat();
   const propose = useAction();
+  const blocker = useAction();
+  const [menu, setMenu] = useState(false);
+  const [reporting, setReporting] = useState(false);
   const [open, setOpen] = useState(false);
   const [when, setWhen] = useState(defaultLocalInput(24));
   const [focus, setFocus] = useState("");
@@ -30,7 +34,18 @@ export default function Membre() {
 
   return (
     <main className="page bare">
-      <div className="topbar"><BackButton /></div>
+      <div className="topbar between">
+        <BackButton />
+        {m && m.id !== user.id && <button type="button" className="more" aria-label="Plus d'options" onClick={() => setMenu(true)} style={{ background: "none", border: 0, cursor: "pointer" }}><Icon name="more" size={22} stroke={2.4} /></button>}
+      </div>
+      {menu && !reporting && (
+        <Sheet onClose={() => setMenu(false)}>
+          <button type="button" className="opt" onClick={() => setReporting(true)}>Signaler ce membre</button>
+          <button type="button" className="opt danger" disabled={blocker.busy} onClick={() => blocker.run(async () => { await blockMember(m.id); nav("/binomes", { replace: true }); })}>Bloquer {m.display_name}</button>
+          {blocker.error && <p className="error" role="alert">{blocker.error}</p>}
+        </Sheet>
+      )}
+      {reporting && <ReportSheet kind="user" target={m.id} onClose={() => { setReporting(false); setMenu(false); }} />}
       {loading ? <Loading /> : error ? <Empty title="Profil introuvable">{error.message}</Empty> : (
         <>
           <div className="pad" style={{ paddingTop: 14, display: "flex", alignItems: "center", gap: 16 }}>

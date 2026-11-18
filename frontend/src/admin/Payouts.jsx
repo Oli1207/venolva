@@ -22,7 +22,7 @@ function PayeesTable({ onCreated }) {
           <tbody>
             {data.length === 0 ? <EmptyRow cols={7}>Personne n'a encore encaissé de paiement en ligne.</EmptyRow> : data.map((r) => (
               <tr key={r.user.id}>
-                <td><b>{r.user.name}</b><div className="small muted">{PRO_LABELS[r.pro_type] || "Gérant"} · {r.user.phone}</div></td>
+                <td><b>{r.user.name}</b><div className="small muted">{PRO_LABELS[r.pro_type] || "Gérant"} · {r.user.email || r.user.phone}</div></td>
                 <td className="num"><b>{fmtPrice(r.available)}</b></td>
                 <td className="num">{fmtPrice(r.waiting)}</td>
                 <td className="num">{fmtPrice(r.in_payout)}</td>
@@ -50,7 +50,7 @@ function PayoutRow({ po, onChange }) {
     <>
       <tr>
         <td>n°{po.id}<div className="small muted">{fmtDateTime(po.created_at)}</div></td>
-        <td><b>{po.payee.name}</b><div className="small muted">{po.payee.phone}</div></td>
+        <td><b>{po.payee.name}</b><div className="small muted">{po.payee.email || po.payee.phone}</div></td>
         <td className="num"><b>{fmtPrice(po.amount)}</b></td>
         <td>{METHODS[po.method] || po.method}<div className="small muted">{po.number} · {po.holder_name}</div></td>
         <td><Badge tone={tone}>{label}</Badge>{po.reference && <div className="small muted">Réf. {po.reference}</div>}{po.paid_at && <div className="small muted">{fmtDateTime(po.paid_at)}</div>}</td>

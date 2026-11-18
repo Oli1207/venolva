@@ -13,6 +13,8 @@ from rest_framework.views import APIView
 from apps.accounts.models import User
 from apps.chat.services import get_or_create_conversation
 from apps.gyms.models import Gym
+from apps.notifications.services import notify
+from apps.promo.services import featured_ids
 
 from . import services as slots
 from .models import Availability, Booking, ProProfile, Service
@@ -96,8 +98,10 @@ class ProListView(APIView):
             qs = qs.filter(Q(user__commune__iexact=commune) | Q(gym__commune__iexact=commune))
         if q:
             qs = qs.filter(Q(user__display_name__icontains=q) | Q(speciality__icontains=q))
+        top = featured_ids("pro", request.user.commune or "")
         out = [
             {
+                "featured": p.user_id in top,
                 "person": PersonSerializer(p.user).data,
                 "speciality": p.speciality,
                 "gym": p.gym.name if p.gym_id else None,
@@ -107,6 +111,7 @@ class ProListView(APIView):
             for p in qs.order_by("-done", "user__display_name")[:50]
             if p.min_price is not None
         ]
+        out.sort(key=lambda r: not r["featured"])  # les mises à la une d'abord, l'ordre reste stable ensuite
         return Response(out)
 
 
@@ -228,6 +233,7 @@ class BookingListCreateView(ListAPIView):
                 note=d.get("note", ""),
             )
             get_or_create_conversation(request.user, d["pro"])
+        notify(d["pro"], "booking_new", f"Nouvelle demande de {request.user.display_name or 'un membre'}", service.name, "/pro")
         return Response(BookingSerializer(booking, context={"request": request}).data, status=status.HTTP_201_CREATED)
 
 
@@ -260,6 +266,7 @@ class BookingActionView(APIView):
             return "Un autre rendez-vous occupe déjà ce créneau."
         b.status = Booking.Status.CONFIRMED
         b.save(update_fields=["status"])
+        notify(b.client, "booking_confirmed", "Ta séance est confirmée", f"{b.service.name} avec {b.pro.display_name}", "/seances?tab=bookings")
 
     def do_decline(self, u, b):
         err = self._pro_only(u, b)
@@ -267,6 +274,7 @@ class BookingActionView(APIView):
             return err or "Cette réservation a déjà reçu une réponse."
         b.status = Booking.Status.DECLINED
         b.save(update_fields=["status"])
+        notify(b.client, "booking_declined", "Ta demande n'a pas été acceptée", f"{b.service.name} avec {b.pro.display_name}", "/seances?tab=bookings")
 
     def do_cancel(self, u, b):
         if b.status not in Booking.BLOCKING:
@@ -277,6 +285,8 @@ class BookingActionView(APIView):
         from apps.payments.services import client_refund_applies, flag_refunds
 
         flag_refunds("booking", b.pk, refund=u.pk == b.pro_id or client_refund_applies(b.starts_at))
+        other = b.client if u.pk == b.pro_id else b.pro
+        notify(other, "booking_cancelled", f"{u.display_name or 'Quelqu\'un'} a annulé la réservation", b.service.name, "/seances?tab=bookings" if other.pk == b.client_id else "/pro")
 
     def do_complete(self, u, b):
         err = self._pro_only(u, b)

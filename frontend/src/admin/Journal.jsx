@@ -6,7 +6,7 @@ const ACTIONS = {
   "settings.update": "Réglages modifiés", "commission.set": "Commission définie", "commission.delete": "Commission supprimée",
   "payment.refund": "Remboursement noté", "payment.accept": "Paiement validé à la main", "payout.create": "Reversement créé",
   "payout.paid": "Reversement versé", "payout.cancel": "Reversement annulé", "pro.approve": "Dossier pro validé", "pro.reject": "Dossier pro refusé",
-  "gym.update": "Salle modifiée", "report.hide": "Annonce retirée", "report.dismiss": "Signalement ignoré", "user.update": "Compte modifié",
+  "gym.update": "Salle modifiée", "ambassador.create": "Ambassadrice ajoutée", "contract.create": "Contrat créé", "contract.sign": "Contrat signé", "contract.renew": "Contrat renouvelé", "contract.terminate": "Contrat résilié", "statement.generate": "Relevé généré", "statement.paid": "Relevé versé", "statement.cancel": "Relevé annulé", "report.hide": "Annonce retirée", "report.dismiss": "Signalement ignoré", "user.update": "Compte modifié",
 };
 
 function Detail({ d }) {
@@ -25,7 +25,7 @@ export default function Journal() {
       <div className="adm-form" style={{ marginBottom: 14 }}>
         <div className="field"><label className="k" htmlFor="ja">Type</label>
           <select id="ja" className="input" value={action} onChange={(e) => { setPage(1); setAction(e.target.value); }}>
-            <option value="">Tout</option><option value="settings">Réglages</option><option value="commission">Commissions</option><option value="payment">Paiements</option><option value="payout">Reversements</option><option value="pro">Dossiers pro</option><option value="gym">Salles</option><option value="report">Modération</option><option value="user">Utilisateurs</option>
+            <option value="">Tout</option><option value="settings">Réglages</option><option value="commission">Commissions</option><option value="payment">Paiements</option><option value="payout">Reversements</option><option value="pro">Dossiers pro</option><option value="gym">Salles</option><option value="ambassador">Ambassadeurs</option><option value="contract">Contrats</option><option value="statement">Relevés</option><option value="report">Modération</option><option value="user">Utilisateurs</option>
           </select></div>
       </div>
       <div className="tbl-wrap">

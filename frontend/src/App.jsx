@@ -2,6 +2,7 @@ import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import { useAuth } from "./auth";
 import { Loading } from "./ui";
 import AdminShell from "./admin/AdminShell";
+import Ambassadors from "./admin/Ambassadors";
 import Applications from "./admin/Applications";
 import Dashboard from "./admin/Dashboard";
 import AdminGyms from "./admin/Gyms";
@@ -10,7 +11,15 @@ import Moderation from "./admin/Moderation";
 import AdminPayments from "./admin/Payments";
 import Payouts from "./admin/Payouts";
 import Settings from "./admin/Settings";
+import Promo from "./admin/Promo";
+import Signalements from "./admin/Signalements";
 import Users from "./admin/Users";
+import ALaUne from "./pages/ALaUne";
+import EditerProfil from "./pages/EditerProfil";
+import Notifications from "./pages/Notifications";
+import Publication from "./pages/Publication";
+import Reglages from "./pages/Reglages";
+import Ambassadrice from "./pages/Ambassadrice";
 import Article from "./pages/Article";
 import Binomes from "./pages/Binomes";
 import Conversation from "./pages/Conversation";
@@ -80,8 +89,11 @@ export default function App() {
         <Route path="paiements" element={<AdminPayments />} />
         <Route path="reversements" element={<Payouts />} />
         <Route path="dossiers" element={<Applications />} />
+        <Route path="ambassadeurs" element={<Ambassadors />} />
         <Route path="salles" element={<AdminGyms />} />
         <Route path="moderation" element={<Moderation />} />
+        <Route path="a-la-une" element={<Promo />} />
+        <Route path="signalements" element={<Signalements />} />
         <Route path="utilisateurs" element={<Users />} />
         <Route path="journal" element={<Journal />} />
       </Route>
@@ -97,11 +109,17 @@ export default function App() {
           <Route path="/messages" element={<Messages />} />
           <Route path="/messages/:id" element={<Conversation />} />
           <Route path="/profil" element={<Profil />} />
+          <Route path="/profil/modifier" element={<EditerProfil />} />
+          <Route path="/reglages" element={<Reglages />} />
+          <Route path="/notifications" element={<Notifications />} />
+          <Route path="/a-la-une" element={<ALaUne />} />
+          <Route path="/publication/:id" element={<Publication />} />
           <Route path="/marche/:id" element={<Article />} />
           <Route path="/vendre" element={<Vendre />} />
           <Route path="/mes-annonces" element={<MesAnnonces />} />
           <Route path="/paiement/retour" element={<PaiementRetour />} />
           <Route path="/revenus" element={<Revenus />} />
+          <Route path="/ambassadrice" element={<Ambassadrice />} />
           <Route path="/salles" element={<Salles />} />
           <Route path="/salles/:id" element={<SalleProfil />} />
           <Route path="/ma-salle" element={<MaSalle />} />

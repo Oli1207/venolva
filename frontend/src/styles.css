@@ -230,3 +230,19 @@ table.t td.num, table.t th.num { text-align: right; white-space: nowrap; font-va
 .toggle.on { background: var(--ink); }
 .toggle.on::after { transform: translateX(18px); }
 @media (prefers-reduced-motion: reduce) { .toggle::after { transition: none; } }
+
+/* --- fil classé, signalement, notifications --- */
+.entry .pn .more { margin-left: auto; background: none; border: 0; padding: 4px; color: var(--mute); cursor: pointer; }
+.entry .tools { display: flex; align-items: center; gap: 16px; margin-top: 10px; color: var(--mute); font-size: 13px; }
+.entry .like { display: inline-flex; align-items: center; gap: 6px; background: none; border: 0; padding: 6px 0; cursor: pointer; color: inherit; font: inherit; }
+.entry .like.on { color: var(--accent); }
+.entry .like.on svg { fill: var(--accent); }
+.entry .ttl { font-weight: 700; font-size: 17px; line-height: 1.25; margin: 2px 0 4px; display: block; color: var(--ink); }
+.tag { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--accent); }
+.promo { display: block; margin: 8px 20px; padding: 14px 16px; border: 1px solid #e4e4de; border-radius: 14px; background: #fff8f2; color: var(--ink); text-decoration: none; }
+.promo b { display: block; font-size: 16px; margin: 4px 0 2px; }
+.sheet-back { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.35); z-index: 50; display: flex; align-items: flex-end; justify-content: center; }
+.sheet { background: #fff; width: 100%; max-width: 430px; border-radius: 20px 20px 0 0; padding: 20px 20px 28px; display: flex; flex-direction: column; gap: 10px; max-height: 85vh; overflow: auto; }
+.sheet button.opt { text-align: left; background: none; border: 0; border-bottom: 1px solid #eee; padding: 14px 2px; font: inherit; font-size: 16px; cursor: pointer; }
+.sheet button.opt.danger { color: #b3261e; }
+.unread-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); display: inline-block; margin-right: 8px; flex: none; }

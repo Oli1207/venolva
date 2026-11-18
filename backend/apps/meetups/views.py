@@ -10,6 +10,8 @@ from rest_framework.views import APIView
 
 from apps.chat.services import get_or_create_conversation
 from apps.gyms.models import Gym
+from apps.notifications.services import notify
+from apps.safety.services import blocked_ids
 
 from .models import Meetup
 from .serializers import MeetupCreateSerializer, MeetupSerializer
@@ -24,6 +26,7 @@ def create_meetup(organizer, partner, starts_at, gym=None, focus=""):
     conv = get_or_create_conversation(organizer, partner)
     conv.meetup = meetup
     conv.save(update_fields=["meetup", "updated_at"])
+    notify(partner, "meetup_proposed", f"{organizer.display_name or 'Un membre'} te propose une séance", focus, "/seances")
     return meetup
 
 
@@ -46,6 +49,8 @@ class MeetupListCreateView(ListAPIView):
         ser = MeetupCreateSerializer(data=request.data, context={"request": request})
         ser.is_valid(raise_exception=True)
         data = ser.validated_data
+        if data["partner"].pk in blocked_ids(request.user):
+            return Response({"partner": ["Cette personne n'est pas disponible."]}, status=status.HTTP_400_BAD_REQUEST)
         gym = Gym.objects.filter(pk=data.get("gym")).first() if data.get("gym") else None
         meetup = create_meetup(request.user, data["partner"], data["starts_at"], gym, data.get("focus", ""))
         return Response(MeetupSerializer(meetup, context={"request": request}).data, status=status.HTTP_201_CREATED)
@@ -77,12 +82,14 @@ class MeetupActionView(APIView):
             return "Indique accept: true ou false."
         meetup.status = Meetup.Status.CONFIRMED if accept else Meetup.Status.CANCELLED
         meetup.save(update_fields=["status"])
+        notify(meetup.organizer, "meetup_answer", f"{request.user.display_name or 'Ton binôme'} a {'accepté' if accept else 'refusé'} ta séance", "", "/seances")
 
     def do_cancel(self, request, meetup):
         if meetup.status in (Meetup.Status.DONE, Meetup.Status.CANCELLED):
             return "Cette séance est déjà terminée ou annulée."
         meetup.status = Meetup.Status.CANCELLED
         meetup.save(update_fields=["status"])
+        notify(meetup.other(request.user), "meetup_cancelled", f"{request.user.display_name or 'Ton binôme'} a annulé la séance", "", "/seances")
 
     def do_arrive(self, request, meetup):
         if meetup.status != Meetup.Status.CONFIRMED:

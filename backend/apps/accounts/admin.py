@@ -5,9 +5,9 @@ from .models import Profile, User
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ("phone", "display_name", "commune", "pro_type", "pro_verified", "date_joined")
+    list_display = ("email", "phone", "display_name", "commune", "pro_type", "pro_verified", "date_joined")
     list_filter = ("pro_type", "pro_verified")
-    search_fields = ("phone", "display_name")
+    search_fields = ("email", "phone", "display_name")
     actions = ["verify_pros"]
 
     @admin.action(description="Valider les comptes pro sélectionnés (coche verte)")

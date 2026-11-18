@@ -16,8 +16,11 @@ export default function AdminShell() {
     ["/admin/paiements", "Paiements", d ? d.refunds.count + d.to_review : 0],
     ["/admin/reversements", "Reversements", 0],
     ["/admin/dossiers", "Dossiers pro", d?.pros_pending || 0],
+    ["/admin/ambassadeurs", "Ambassadeurs", d?.ambassador_contracts_ending || 0],
     ["/admin/salles", "Salles", 0],
     ["/admin/moderation", "Modération", d?.reports_open || 0],
+    ["/admin/a-la-une", "À la une", 0],
+    ["/admin/signalements", "Signalements", 0],
     ["/admin/utilisateurs", "Utilisateurs", 0],
     ["/admin/journal", "Journal", 0],
   ];

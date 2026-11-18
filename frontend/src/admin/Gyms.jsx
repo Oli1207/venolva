@@ -12,12 +12,12 @@ function Row({ g, onChange }) {
   return (
     <tr>
       <td><b>{g.name}</b><div className="small muted">{g.commune}{g.address ? ` · ${g.address}` : ""}</div></td>
-      <td>{g.owner ? <><b>{g.owner.name}</b><div className="small muted">{g.owner.phone}</div></> : <Badge tone="warn">Sans gérant</Badge>}</td>
+      <td>{g.owner ? <><b>{g.owner.name}</b><div className="small muted">{g.owner.email || g.owner.phone}</div></> : <Badge tone="warn">Sans gérant</Badge>}</td>
       <td>{g.verified ? <Badge tone="ok">Vérifiée</Badge> : <Badge>Non vérifiée</Badge>}</td>
       <td style={{ minWidth: 260 }}>
         {editing ? (
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <input aria-label={`Numéro du gérant de ${g.name}`} className="input" placeholder="Numéro du gérant (07 …)" value={phone} onChange={(e) => setPhone(e.target.value)} />
+            <input aria-label={`E-mail du gérant de ${g.name}`} className="input" placeholder="E-mail du gérant" value={phone} onChange={(e) => setPhone(e.target.value)} />
             <div className="adm-actions">
               <button type="button" className="btn sm" disabled={busy || !phone} onClick={() => save({ owner_phone: phone })}>Rattacher</button>
               {g.owner && <button type="button" className="link" disabled={busy} onClick={() => save({ owner_phone: "" })}>Détacher le gérant</button>}
@@ -40,7 +40,7 @@ export default function AdminGyms() {
   const [q, setQ] = useState("");
   const { data, loading, error, reload, page, setPage, pages } = usePaged("/admin/gyms/", { q });
   return (
-    <Page title="Salles" sub="Rattache une salle à son gérant : il pourra alors gérer ses horaires, ses formules et ses cours depuis l'app. Le numéro doit être celui d'un compte existant.">
+    <Page title="Salles" sub="Rattache une salle à son gérant : il pourra alors gérer ses horaires, ses formules et ses cours depuis l'app. L'e-mail doit être celui d'un compte existant.">
       <div className="adm-form" style={{ marginBottom: 14 }}>
         <div className="field" style={{ flex: 1, minWidth: 220 }}><label className="k" htmlFor="gq">Recherche</label><input id="gq" className="input" placeholder="Nom ou commune" value={q} onChange={(e) => { setPage(1); setQ(e.target.value); }} /></div>
       </div>

@@ -31,6 +31,10 @@ INSTALLED_APPS = [
     "apps.market",
     "apps.payments",
     "apps.backoffice",
+    "apps.ambassadors",
+    "apps.safety",
+    "apps.promo",
+    "apps.notifications",
 ]
 
 MIDDLEWARE = [
@@ -117,7 +121,7 @@ CORS_ALLOWED_ORIGINS = [
 # --- Paiement en ligne : Jeko (mobile money) et Paystack (carte, et mobile money en repli) ---------------------------
 # Les clés viennent de l'environnement (backend/.env, jamais dans git). Sans clés, le paiement en ligne est simplement indisponible.
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
-PAYMENT_EMAIL_DOMAIN = os.getenv("PAYMENT_EMAIL_DOMAIN", "pay.djinzin.app")  # Paystack exige un e-mail, les membres n'ont qu'un numéro
+PAYMENT_EMAIL_DOMAIN = os.getenv("PAYMENT_EMAIL_DOMAIN", "pay.djinzin.app")  # repli si un membre n'a pas d'e-mail (ex. compte ancien)
 # Commission, mode de paiement et autres réglages métier : modifiables dans l'administration de l'app (PlatformSettings).
 
 PAYSTACK_SECRET_KEY = os.getenv("PAYSTACK_SECRET_KEY", "")
@@ -137,3 +141,15 @@ JEKO_TIMEOUT_SECONDS = 15
 
 # Code de connexion : en dev il est affiché dans la console, aucun SMS n'est envoyé.
 OTP_DEV_ECHO = DEBUG
+
+
+# E-mail : le code de connexion part par ici. En développement il s'affiche dans la console ;
+# en production, renseigne EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend et les variables EMAIL_*.
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
+EMAIL_HOST = os.getenv("EMAIL_HOST", "")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "true").lower() == "true"
+EMAIL_TIMEOUT = 10
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "Djinzin <no-reply@djinzin.app>")

@@ -209,17 +209,17 @@ class SettingsTakeEffectTests(APITestCase):
     def test_otp_rules(self):
         set_cfg(otp_max_requests_per_hour=1)
         c = APIClient()
-        self.assertEqual(c.post("/api/auth/otp/request/", {"phone": "0700000444"}, format="json").status_code, 200)
-        self.assertEqual(c.post("/api/auth/otp/request/", {"phone": "0700000444"}, format="json").status_code, 429)
+        self.assertEqual(c.post("/api/auth/otp/request/", {"email": "a444@exemple.test"}, format="json").status_code, 200)
+        self.assertEqual(c.post("/api/auth/otp/request/", {"email": "a444@exemple.test"}, format="json").status_code, 429)
 
     def test_otp_code_lifetime(self):
         set_cfg(otp_ttl_seconds=60)
         c = APIClient()
-        code = c.post("/api/auth/otp/request/", {"phone": "0700000445"}, format="json").json()["dev_code"]
+        code = c.post("/api/auth/otp/request/", {"email": "a445@exemple.test"}, format="json").json()["dev_code"]
         from apps.accounts.models import OtpCode
 
         OtpCode.objects.update(created_at=timezone.now() - timedelta(seconds=90))
-        self.assertEqual(c.post("/api/auth/otp/verify/", {"phone": "0700000445", "code": code}, format="json").status_code, 400)
+        self.assertEqual(c.post("/api/auth/otp/verify/", {"email": "a445@exemple.test", "code": code}, format="json").status_code, 400)
 
 
 # --- Commissions ---------------------------------------------------------------------------------------------------------------------

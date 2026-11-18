@@ -15,4 +15,9 @@ urlpatterns = [
     path("api/", include("apps.market.urls")),
     path("api/", include("apps.payments.urls")),
     path("api/", include("apps.backoffice.urls")),
+    path("api/", include("apps.ambassadors.urls")),
+    path("api/", include("apps.safety.urls")),
+    path("api/", include("apps.safety.admin_urls")),
+    path("api/", include("apps.promo.urls")),
+    path("api/", include("apps.notifications.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)  # sert les photos en développement seulement

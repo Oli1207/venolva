@@ -132,3 +132,14 @@ Pages : tableau de bord, **réglages**, paiements, **reversements**, dossiers pr
 - Un montant inattendu passe « à vérifier », un double paiement « à rembourser ».
 
 Chaque action d'administration est inscrite au **journal** (auteur, date, valeur avant et après pour les réglages).
+
+## Ambassadeurs
+
+Un ambassadeur représente Djinzin et touche un pourcentage de **ce que la plateforme gagne** (sa commission), jamais de l'argent des pros et des salles. Page Ambassadeurs de l'administration, espace « Ambassadrice » dans le profil de la personne.
+
+- **Contrat** : durée fixe (6 mois par défaut), brouillon tant qu'il n'est pas signé, renouvelable en créant le contrat suivant (même taux et durée, modifiables), résiliable avant le terme. Deux contrats d'une même personne ne peuvent pas se chevaucher. Un brouillon ne rapporte rien.
+- **Gains** : la commission d'un paiement compte quand la séance a eu lieu et que le délai d'attente avant reversement est écoulé, donc quand plus aucun remboursement n'est possible. Seuls les paiements encaissés comptent, pas les remboursés, doublons ou paiements à vérifier.
+- **Relevés** : l'administrateur clôture un mois terminé. Le relevé fige les commissions, le taux et le montant, puis il se règle à la main (référence du virement). Un paiement n'est jamais compté deux fois (contrainte en base) ; annuler un relevé non versé libère ses paiements. Le montant se calcule au FCFA le plus proche.
+- **Réglages** : taux et durée par défaut dans Réglages > Ambassadeurs. Chaque contrat garde son propre taux.
+- **Contrat à signer** : `docs/contrat-ambassadrice.docx`, un modèle à faire relire par un juriste avant signature. Les passages entre crochets sont à remplir.
+- Les codes promo et l'attribution par ambassadeur viendront plus tard : pour l'instant, la part porte sur toutes les commissions de la plateforme.

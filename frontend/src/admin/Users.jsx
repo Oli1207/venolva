@@ -11,7 +11,7 @@ function Row({ u, me, onChange }) {
   const self = u.id === me.id;
   return (
     <tr>
-      <td><b>{u.name}</b><div className="small muted">{u.phone}{u.commune ? ` · ${u.commune}` : ""}</div></td>
+      <td><b>{u.name}</b><div className="small muted">{u.email || u.phone}{u.commune ? ` · ${u.commune}` : ""}</div></td>
       <td>{u.pro_type ? <>{PRO_LABELS[u.pro_type]} {u.pro_verified ? <Badge tone="ok">Vérifié</Badge> : <Badge tone="warn">En attente</Badge>}</> : <span className="muted">Membre</span>}</td>
       <td>{fmtDateTime(u.date_joined)}</td>
       <td>{!u.is_active && <Badge tone="bad">Suspendu</Badge>} {u.is_staff && <Badge tone="warn">Équipe</Badge>}</td>

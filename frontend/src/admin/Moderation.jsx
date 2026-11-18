@@ -14,7 +14,7 @@ function Row({ r, onChange }) {
   return (
     <tr>
       <td>{fmtDateTime(r.created_at)}</td>
-      <td><b>{r.listing.title}</b><div className="small muted">{fmtPrice(r.listing.price)} · vendeur {r.listing.seller.name} ({r.listing.seller.phone})</div><Badge tone={tone}>{label}</Badge></td>
+      <td><b>{r.listing.title}</b><div className="small muted">{fmtPrice(r.listing.price)} · vendeur {r.listing.seller.name} ({r.listing.seller.email || r.listing.seller.phone})</div><Badge tone={tone}>{label}</Badge></td>
       <td><b>{REASON[r.reason] || r.reason}</b>{r.detail && <div className="small">{r.detail}</div>}<div className="small muted">par {r.reporter.name}{r.reports_on_listing > 1 ? ` · ${r.reports_on_listing} signalements sur cette annonce` : ""}</div></td>
       <td>
         {r.handled ? <Badge>Traité</Badge> : (

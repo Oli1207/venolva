@@ -37,7 +37,7 @@ function Overrides() {
           <tbody>
             {loading ? <EmptyRow cols={6}>Chargement…</EmptyRow> : error ? <EmptyRow cols={6}>{error.message}</EmptyRow> : data.length === 0 ? <EmptyRow cols={6}>Aucune commission particulière.</EmptyRow> : data.map((o) => (
               <tr key={o.id}>
-                <td><b>{o.user.name}</b><div className="small muted">{o.user.phone}</div></td>
+                <td><b>{o.user.name}</b><div className="small muted">{o.user.email || o.user.phone}</div></td>
                 <td>{PURPOSES[o.purpose]}</td>
                 <td className="num"><b>{o.pct} %</b></td>
                 <td>{o.note}</td>
@@ -49,7 +49,7 @@ function Overrides() {
         </table>
       </div>
       <form className="adm-form" onSubmit={add} style={{ marginTop: 16 }}>
-        <div className="field"><label className="k" htmlFor="cp">Numéro du vendeur</label><input id="cp" className="input" placeholder="07 00 00 00 00" value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} /></div>
+        <div className="field"><label className="k" htmlFor="cp">E-mail du vendeur</label><input id="cp" className="input" placeholder="vendeur@exemple.com" type="email" value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} /></div>
         <div className="field"><label className="k" htmlFor="cu">Concerne</label><select id="cu" className="input" value={f.purpose} onChange={(e) => setF({ ...f, purpose: e.target.value })}>{Object.entries(PURPOSES).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
         <div className="field" style={{ minWidth: 100 }}><label className="k" htmlFor="cr">Taux (%)</label><input id="cr" className="input" type="number" min="0" max="50" value={f.pct} onChange={(e) => setF({ ...f, pct: e.target.value })} /></div>
         <div className="field" style={{ flex: 1 }}><label className="k" htmlFor="cn">Note</label><input id="cn" className="input" maxLength={120} placeholder="Partenaire fondateur" value={f.note} onChange={(e) => setF({ ...f, note: e.target.value })} /></div>

@@ -9,6 +9,18 @@ from django.utils import timezone
 PHONE_RE = re.compile(r"^\+225\d{10}$")
 
 
+def normalize_email(raw: str) -> str:
+    """Adresse en minuscules, sans espaces ; lève ValidationError si elle n'a pas la forme d'un e-mail."""
+    from django.core.validators import validate_email
+
+    value = (raw or "").strip().lower()
+    try:
+        validate_email(value)
+    except ValidationError:
+        raise ValidationError("Adresse e-mail invalide.")
+    return value
+
+
 def normalize_phone(raw: str) -> str:
     """Accepte 07 00 00 00 00, 0700000000, +2250700000000 et renvoie +2250700000000."""
     digits = re.sub(r"[^\d+]", "", raw or "")
@@ -26,9 +38,12 @@ def normalize_phone(raw: str) -> str:
 class UserManager(BaseUserManager):
     use_in_migrations = True
 
-    def create_user(self, phone, password=None, **extra):
-        phone = normalize_phone(phone)
-        user = self.model(phone=phone, **extra)
+    def create_user(self, email=None, password=None, phone=None, **extra):
+        if not email and not phone:
+            raise ValueError("Une adresse e-mail est nécessaire.")
+        email = normalize_email(email) if email else None
+        phone = normalize_phone(phone) if phone else None
+        user = self.model(email=email, phone=phone, **extra)
         if password:
             user.set_password(password)
         else:
@@ -36,10 +51,10 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, phone, password=None, **extra):
+    def create_superuser(self, email, password=None, **extra):
         extra.setdefault("is_staff", True)
         extra.setdefault("is_superuser", True)
-        return self.create_user(phone, password, **extra)
+        return self.create_user(email, password, **extra)
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -53,7 +68,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         DOCTOR = "doctor", "Médecin du sport"
         SHOP = "shop", "Boutique de matériel"
 
-    phone = models.CharField(max_length=14, unique=True)
+    email = models.EmailField(unique=True, null=True, blank=True)  # identifiant de connexion
+    phone = models.CharField(max_length=14, unique=True, null=True, blank=True)  # facultatif, plus utilisé pour se connecter
     display_name = models.CharField(max_length=60, blank=True)
     commune = models.CharField(max_length=60, blank=True)
     pro_type = models.CharField(max_length=12, choices=ProType.choices, blank=True)
@@ -63,11 +79,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(default=timezone.now)
 
     objects = UserManager()
-    USERNAME_FIELD = "phone"
+    USERNAME_FIELD = "email"
     REQUIRED_FIELDS: list[str] = []
 
     def __str__(self):
-        return self.display_name or self.phone
+        return self.display_name or self.email or self.phone or f"#{self.pk}"
 
     @property
     def initials(self) -> str:
@@ -117,9 +133,9 @@ class Profile(models.Model):
 
 
 class OtpCode(models.Model):
-    """Code à usage unique envoyé par SMS ou WhatsApp. Seul un hash est stocké."""
+    """Code à usage unique envoyé par e-mail. Seul un hash est stocké."""
 
-    phone = models.CharField(max_length=14, db_index=True)
+    email = models.EmailField(db_index=True)
     code_hash = models.CharField(max_length=128)
     created_at = models.DateTimeField(auto_now_add=True)
     attempts = models.PositiveSmallIntegerField(default=0)
@@ -127,3 +143,11 @@ class OtpCode(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+
+
+def find_user(raw: str):
+    """Retrouve un compte à partir d'une adresse e-mail ou d'un numéro. Lève ValidationError ou User.DoesNotExist."""
+    raw = str(raw or "").strip()
+    if "@" in raw:
+        return User.objects.get(email=normalize_email(raw))
+    return User.objects.get(phone=normalize_phone(raw))

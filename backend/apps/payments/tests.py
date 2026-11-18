@@ -154,7 +154,7 @@ class CreatePaymentTests(APITestCase):
         sent = self.net.sent_to("paystack")[0][2]
         self.assertEqual(sent["json"]["amount"], 1_000_000)
         self.assertEqual(sent["json"]["currency"], "XOF")
-        self.assertEqual(sent["json"]["email"], f"u{self.client_user.id}@pay.djinzin.app")
+        self.assertEqual(sent["json"]["email"], self.client_user.email)  # l adresse du membre, jamais son numéro
         self.assertNotIn(self.client_user.phone, json.dumps(sent["json"]))
         self.assertEqual(sent["headers"]["Authorization"], "Bearer sk_test_fake")
 

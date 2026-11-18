@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from django.db import IntegrityError, transaction
-from django.db.models import Avg, Count, Q
+from django.db.models import Avg, Case, Count, IntegerField, Q, When
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import status
@@ -12,6 +12,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.chat.models import Message
+from apps.notifications.services import notify
+from apps.promo.services import featured_ids
 from apps.chat.services import get_or_create_conversation
 
 from .models import ClassBooking, Gym, GymClass, GymHours, GymPlan, GymReview, MembershipRequest
@@ -42,7 +44,8 @@ class GymListView(ListAPIView):
             qs = qs.filter(commune__iexact=commune)
         if q:
             qs = qs.filter(Q(name__icontains=q) | Q(commune__icontains=q))
-        return qs.order_by("-members_count", "name")[:50]
+        top = featured_ids("gym", self.request.user.commune or "")
+        return qs.annotate(_top=Case(When(pk__in=top, then=0), default=1, output_field=IntegerField())).order_by("_top", "-members_count", "name")[:50]
 
 
 def gym_payload(gym: Gym, request) -> dict:
@@ -121,6 +124,7 @@ class PlanRequestView(APIView):
                     body=f"Bonjour, je souhaite la formule « {plan.name} » ({price} F) à {gym.name}.",
                 )
                 conv.save(update_fields=["updated_at"])
+                notify(gym.owner, "membership_request", f"{request.user.display_name or 'Un membre'} demande la formule « {plan.name} »", gym.name, "/ma-salle")
         return Response(RequestSerializer(req).data, status=status.HTTP_201_CREATED)
 
 
@@ -377,4 +381,5 @@ class MyGymRequestActionView(APIView):
             return Response({"detail": "Cette demande a déjà reçu une réponse."}, status=status.HTTP_400_BAD_REQUEST)
         req.status = MembershipRequest.Status.ACCEPTED if action == "accept" else MembershipRequest.Status.DECLINED
         req.save(update_fields=["status"])
+        notify(req.user, "membership_answer", f"Ta demande à {gym.name} est {'acceptée' if action == 'accept' else 'refusée'}", req.plan.name, f"/salles/{gym.id}")
         return Response(RequestSerializer(req).data)

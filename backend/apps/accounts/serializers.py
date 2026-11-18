@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Profile, User, normalize_phone
+from .models import Profile, User, normalize_email, normalize_phone
 from django.core.exceptions import ValidationError as DjangoValidationError
 
 
@@ -12,12 +12,20 @@ class PhoneField(serializers.CharField):
             raise serializers.ValidationError(exc.messages[0])
 
 
+class EmailAddressField(serializers.CharField):
+    def to_internal_value(self, data):
+        try:
+            return normalize_email(super().to_internal_value(data))
+        except DjangoValidationError as exc:
+            raise serializers.ValidationError(exc.messages[0])
+
+
 class OtpRequestSerializer(serializers.Serializer):
-    phone = PhoneField()
+    email = EmailAddressField()
 
 
 class OtpVerifySerializer(serializers.Serializer):
-    phone = PhoneField()
+    email = EmailAddressField()
     code = serializers.RegexField(r"^\d{6}$", error_messages={"invalid": "Le code contient 6 chiffres."})
 
 
@@ -48,11 +56,15 @@ class ProfileSerializer(serializers.ModelSerializer):
 class MeSerializer(serializers.ModelSerializer):
     profile = ProfileSerializer()
     initials = serializers.CharField(read_only=True)
+    is_ambassador = serializers.SerializerMethodField()
+
+    def get_is_ambassador(self, obj):
+        return hasattr(obj, "ambassador")
 
     class Meta:
         model = User
-        fields = ["id", "phone", "display_name", "commune", "initials", "pro_type", "pro_verified", "is_staff", "profile"]
-        read_only_fields = ["id", "phone", "pro_type", "pro_verified", "is_staff"]
+        fields = ["id", "email", "phone", "display_name", "commune", "initials", "pro_type", "pro_verified", "is_staff", "is_ambassador", "profile"]
+        read_only_fields = ["id", "email", "phone", "pro_type", "pro_verified", "is_staff", "is_ambassador"]
 
     def update(self, instance, validated):
         profile_data = validated.pop("profile", None)

@@ -15,7 +15,7 @@ def make_gym(name="Salle Riviera 3", commune="Cocody"):
 def make_member(name="Awa K.", commune="Cocody", gym=None, **profile):
     """Crée un membre complet (compte + profil terminé)."""
     _counter["n"] += 1
-    user = User.objects.create_user(phone=f"07{_counter['n']:08d}", display_name=name, commune=commune)
+    user = User.objects.create_user(email=f"membre{_counter['n']}@exemple.test", phone=f"07{_counter['n']:08d}", display_name=name, commune=commune)
     defaults = dict(
         goals=["weight_loss"], level="debutant", gym=gym, days=[0, 2, 4], periods=["evening"], onboarded=True
     )

@@ -15,8 +15,8 @@ function Row({ p, onChange }) {
     <tr>
       <td>{fmtDateTime(p.created_at)}</td>
       <td><span className="small" style={{ wordBreak: "break-all" }}>{p.reference}</span><div className="small muted">{PURPOSE[p.purpose]}</div></td>
-      <td><b>{p.payer.name}</b><div className="small muted">{p.payer.phone}</div></td>
-      <td>{p.payee ? <><b>{p.payee.name}</b><div className="small muted">{p.payee.phone}</div></> : <span className="muted">–</span>}</td>
+      <td><b>{p.payer.name}</b><div className="small muted">{p.payer.email || p.payer.phone}</div></td>
+      <td>{p.payee ? <><b>{p.payee.name}</b><div className="small muted">{p.payee.email || p.payee.phone}</div></> : <span className="muted">–</span>}</td>
       <td className="num"><b>{fmtPrice(p.amount)}</b></td>
       <td className="num">{fmtPrice(p.fee)}<div className="small muted">{p.commission_pct} %</div></td>
       <td className="num">{fmtPrice(p.net)}</td>

@@ -78,6 +78,8 @@ export const nextDays = (n = 7) => Array.from({ length: n }, (_, i) => { const d
 export const weekdayShort = (d) => WEEKDAY.format(d).replace(".", "");
 
 const pad2 = (n) => String(n).padStart(2, "0");
+// Date calendaire AAAA-MM-JJ (sans heure) vers JJ/MM/AAAA, sans décalage de fuseau.
+export const fmtDate = (ymd) => (ymd ? ymd.slice(0, 10).split("-").reverse().join("/") : "–");
 export const fmtDateTime = (iso) => {
   if (!iso) return "–";
   const d = new Date(iso);

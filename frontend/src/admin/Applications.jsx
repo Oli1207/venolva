@@ -17,7 +17,7 @@ function Card({ a, onChange }) {
   return (
     <article className="tile" style={{ gap: 10 }}>
       <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
-        <div><b style={{ fontSize: 17 }}>{a.user.name}</b><div className="small muted">{a.user.phone} · envoyé le {fmtDateTime(a.created_at)}</div></div>
+        <div><b style={{ fontSize: 17 }}>{a.user.name}</b><div className="small muted">{a.user.email || a.user.phone} · envoyé le {fmtDateTime(a.created_at)}</div></div>
         <Badge tone={tone}>{label}</Badge>
       </div>
       <div className="cr"><span className="l">Métier</span><span className="v">{TYPE[a.pro_type] || a.pro_type}</span></div>

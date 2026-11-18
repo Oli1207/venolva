@@ -13,13 +13,15 @@ from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.accounts.models import User, normalize_phone
+from apps.accounts.models import User, find_user
+from apps.ambassadors.models import Contract as AmbassadorContract
 from apps.gyms.models import Gym
 from apps.market.models import Listing, Report
 from apps.payments.models import Payment, Payout, WebhookEvent
 from apps.payments.services import (
     PaymentRefused, PayoutError, accept_review, balance_for, cancel_payout, create_payout, eligible_payments, mark_payout_paid, mark_refunded,
 )
+from apps.notifications.services import notify
 from apps.pros.models import ProProfile
 
 from .models import GROUPS, SCHEMA, SCHEMA_BY_KEY, AuditLog, CommissionOverride, PlatformSettings, audit
@@ -45,7 +47,7 @@ def page(request, qs, row):
 
 
 def person(u):
-    return {"id": u.id, "name": u.display_name or u.phone, "phone": u.phone, "initials": u.initials} if u else None
+    return {"id": u.id, "name": u.display_name or u.email or u.phone, "email": u.email, "phone": u.phone, "initials": u.initials} if u else None
 
 
 def bad(detail, code=status.HTTP_400_BAD_REQUEST):
@@ -80,6 +82,10 @@ class DashboardView(AdminView):
                 },
                 "refunds": {"count": refunds["n"] or 0, "amount": refunds["s"] or 0},
                 "to_review": Payment.objects.filter(status="review").count(),
+                "ambassador_contracts_ending": AmbassadorContract.objects.filter(
+                    signed_at__isnull=False, terminated_at__isnull=True, renewals__isnull=True,
+                    end_date__gte=timezone.localdate(), end_date__lte=timezone.localdate() + timedelta(days=30),
+                ).count(),
                 "commission_set": values["commission_booking_pct"] > 0 or values["commission_class_pct"] > 0,
             }
         )
@@ -168,9 +174,9 @@ class CommissionsView(AdminView):
 
     def post(self, request):
         try:
-            user = User.objects.get(phone=normalize_phone(str(request.data.get("phone", ""))))
+            user = find_user(request.data.get("email") or request.data.get("phone"))
         except (DjangoValidationError, User.DoesNotExist):
-            return bad("Aucun compte avec ce numéro.")
+            return bad("Aucun compte avec cette adresse e-mail.")
         purpose, pct = request.data.get("purpose", "all"), request.data.get("pct")
         if purpose not in dict(CommissionOverride.Purpose.choices):
             return bad("Type de paiement inconnu.")
@@ -212,7 +218,7 @@ class PaymentsView(AdminView):
         if p.get("provider"):
             qs = qs.filter(provider=p["provider"])
         if p.get("q"):
-            qs = qs.filter(Q(reference__icontains=p["q"]) | Q(user__phone__icontains=p["q"]) | Q(user__display_name__icontains=p["q"]))
+            qs = qs.filter(Q(reference__icontains=p["q"]) | Q(user__phone__icontains=p["q"]) | Q(user__email__icontains=p["q"]) | Q(user__display_name__icontains=p["q"]))
         return page(request, qs, payment_row)
 
 
@@ -334,7 +340,7 @@ class PayoutsExportView(AdminView):
         w = csv.writer(response, delimiter=";")
         w.writerow(["Reversement", "Bénéficiaire", "Moyen", "Numéro", "Titulaire", "Montant FCFA", "Statut", "Référence"])
         for po in qs:
-            w.writerow([po.id, safe_cell(po.payee.display_name or po.payee.phone), po.method, po.number, safe_cell(po.holder_name), po.amount, po.status, safe_cell(po.reference)])
+            w.writerow([po.id, safe_cell(po.payee.display_name or po.payee.email or po.payee.phone), po.method, po.number, safe_cell(po.holder_name), po.amount, po.status, safe_cell(po.reference)])
         return response
 
 
@@ -363,9 +369,11 @@ class ProApplicationActionView(AdminView):
         if action == "approve":
             p.approve()
             audit(request.user, "pro.approve", f"user:{p.user_id}", pro_type=p.user.pro_type)
+            notify(p.user, "pro_approved", "Ton compte pro est validé", "Tu as la coche verte.", "/pro")
         elif action == "reject":
             p.reject(str(request.data.get("note", "")))
             audit(request.user, "pro.reject", f"user:{p.user_id}", note=p.review_note)
+            notify(p.user, "pro_rejected", "Ton dossier pro n'a pas été validé", p.review_note, "/pro/devenir")
         else:
             return bad("Action inconnue.", status.HTTP_404_NOT_FOUND)
         return Response(application_row(p))
@@ -402,9 +410,9 @@ class GymDetailView(AdminView):
             raw = str(request.data["owner_phone"] or "").strip()
             if raw:
                 try:
-                    owner = User.objects.get(phone=normalize_phone(raw))
+                    owner = find_user(raw)
                 except (DjangoValidationError, User.DoesNotExist):
-                    return bad("Aucun compte avec ce numéro.")
+                    return bad("Aucun compte avec cette adresse e-mail.")
             else:
                 owner = None
             changes["owner"] = [gym.owner_id, owner.id if owner else None]
@@ -464,7 +472,7 @@ class UsersView(AdminView):
         qs = User.objects.order_by("-date_joined")
         q = request.query_params.get("q")
         if q:
-            qs = qs.filter(Q(phone__icontains=q) | Q(display_name__icontains=q))
+            qs = qs.filter(Q(phone__icontains=q) | Q(email__icontains=q) | Q(display_name__icontains=q))
         if request.query_params.get("staff") == "1":
             qs = qs.filter(is_staff=True)
         return page(request, qs, user_row)

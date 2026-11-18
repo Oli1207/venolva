@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.accounts.models import User
+from apps.safety.services import blocked_ids
 
 from .models import Conversation, Message
 from .services import get_or_create_conversation
@@ -30,8 +31,9 @@ class ConversationListView(ListAPIView):
 
     def list(self, request, *args, **kwargs):
         me = request.user
+        hidden = blocked_ids(me)
         convs = (
-            Conversation.objects.filter(Q(user_a=me) | Q(user_b=me))
+            Conversation.objects.filter(Q(user_a=me) | Q(user_b=me)).exclude(Q(user_a_id__in=hidden) | Q(user_b_id__in=hidden))
             .select_related("user_a", "user_b", "meetup")
             .annotate(unread=Count("messages", filter=~Q(messages__sender=me) & Q(messages__read_at__isnull=True)))
         )
@@ -65,6 +67,8 @@ class ConversationStartView(APIView):
         other = get_object_or_404(User, pk=request.data.get("user"), is_active=True)
         if other == request.user:
             return Response({"detail": "Tu ne peux pas t'écrire à toi-même."}, status=status.HTTP_400_BAD_REQUEST)
+        if other.pk in blocked_ids(request.user):
+            return Response({"detail": "Tu ne peux pas écrire à cette personne."}, status=status.HTTP_400_BAD_REQUEST)
         conv = get_or_create_conversation(request.user, other)
         return Response({"id": conv.id}, status=status.HTTP_201_CREATED)
 
@@ -93,6 +97,8 @@ class MessageListCreateView(APIView):
 
     def post(self, request, pk):
         conv = self._conv(request, pk)
+        if conv.other(request.user).pk in blocked_ids(request.user):
+            return Response({"detail": "Tu ne peux plus écrire à cette personne."}, status=status.HTTP_403_FORBIDDEN)
         body = (request.data.get("body") or "").strip()
         if not body:
             return Response({"detail": "Message vide."}, status=status.HTTP_400_BAD_REQUEST)

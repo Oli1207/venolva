@@ -1,5 +1,5 @@
 from django.db import IntegrityError, transaction
-from django.db.models import Q
+from django.db.models import Case, IntegerField, Q, When
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import status
@@ -12,6 +12,8 @@ from rest_framework.views import APIView
 
 from apps.chat.models import Message
 from apps.chat.services import get_or_create_conversation
+from apps.promo.services import featured_ids
+from apps.safety.services import blocked_ids
 
 from apps.backoffice.config import cfg
 
@@ -43,6 +45,9 @@ class ListingListCreateView(ListCreateAPIView):
             qs = Listing.objects.filter(seller=u).select_related("seller", "gym").prefetch_related("photos")
         else:
             qs = Listing.objects.filter(status=Listing.Status.ACTIVE).select_related("seller", "gym").prefetch_related("photos")
+        if p.get("mine") != "1":
+            top = featured_ids("listing", u.commune or "")
+            qs = qs.annotate(_top=Case(When(pk__in=top, then=0), default=1, output_field=IntegerField())).order_by("_top", "-created_at")
         if p.get("category") in dict(Listing.Category.choices):
             qs = qs.filter(category=p["category"])
         if p.get("q"):
@@ -99,6 +104,8 @@ class ListingContactView(APIView):
         listing = get_object_or_404(Listing, pk=pk, status=Listing.Status.ACTIVE)
         if listing.seller_id == request.user.pk:
             return Response({"detail": "C'est ton annonce."}, status=status.HTTP_400_BAD_REQUEST)
+        if listing.seller_id in blocked_ids(request.user):
+            return Response({"detail": "Tu ne peux pas contacter ce vendeur."}, status=status.HTTP_400_BAD_REQUEST)
         conv = get_or_create_conversation(request.user, listing.seller)
         price = f"{listing.price:,}".replace(",", " ")
         body = f"Bonjour, ton annonce « {listing.title} » ({price} F) est-elle toujours disponible ?"

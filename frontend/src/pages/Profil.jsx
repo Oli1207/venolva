@@ -32,6 +32,27 @@ export default function Profil() {
       {me.data?.punctuality == null && me.data && <p className="hint pad" style={{ margin: "10px 0 0" }}>Ta note de ponctualité apparaît après 3 séances terminées.</p>}
 
       <div className="rows" style={{ paddingTop: 20 }}>
+        <Link to="/profil/modifier" className="row" style={{ minHeight: 64 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: 600, fontSize: 15.5 }}>Modifier mon profil</div>
+            <div className="small muted" style={{ marginTop: 1 }}>Nom, commune, objectifs, niveau</div>
+          </div>
+          <Icon name="chevron" size={18} stroke={2} />
+        </Link>
+        <Link to="/notifications" className="row" style={{ minHeight: 64 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: 600, fontSize: 15.5 }}>Notifications</div>
+            <div className="small muted" style={{ marginTop: 1 }}>Réservations, séances, paiements</div>
+          </div>
+          <Icon name="chevron" size={18} stroke={2} />
+        </Link>
+        <Link to="/a-la-une" className="row" style={{ minHeight: 64 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: 600, fontSize: 15.5 }}>À la une</div>
+            <div className="small muted" style={{ marginTop: 1 }}>Mettre un contenu en avant, voir les résultats</div>
+          </div>
+          <Icon name="chevron" size={18} stroke={2} />
+        </Link>
         {p.gym && (
           <Link to={`/salles/${p.gym}`} className="row" style={{ minHeight: 64 }}>
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -46,6 +67,15 @@ export default function Profil() {
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontWeight: 600, fontSize: 15.5 }}>Administration</div>
               <div className="small muted" style={{ marginTop: 1 }}>Réglages, paiements, reversements, modération</div>
+            </div>
+            <Icon name="chevron" size={18} stroke={2} />
+          </Link>
+        )}
+        {user.is_ambassador && (
+          <Link to="/ambassadrice" className="row" style={{ minHeight: 64 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontWeight: 600, fontSize: 15.5 }}>Espace ambassadrice</div>
+              <div className="small muted" style={{ marginTop: 1 }}>Mon contrat, mes gains et mes relevés</div>
             </div>
             <Icon name="chevron" size={18} stroke={2} />
           </Link>
@@ -83,7 +113,8 @@ export default function Profil() {
       {error && <p className="error pad" role="alert">{error}</p>}
 
       <div className="pad" style={{ marginTop: "auto", paddingTop: 28, paddingBottom: 24, display: "flex", flexDirection: "column", gap: 12 }}>
-        <div className="small muted">Connecté avec le {user.phone}</div>
+        <Link to="/reglages" className="link" style={{ fontSize: 15 }}>Réglages, membres bloqués, supprimer mon compte</Link>
+        <div className="small muted">Connecté avec {user.email}</div>
         <button type="button" className="btn ghost" style={{ height: 52, fontSize: 15.5 }} onClick={logout}>Se déconnecter</button>
       </div>
       <TabBar />

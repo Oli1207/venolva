@@ -8,7 +8,7 @@ const METHODS = [["wave", "Wave"], ["orange", "Orange Money"], ["mtn", "MTN MoMo
 const STATUS = { paid: "Encaissé", refund_due: "À rembourser", refunded: "Remboursé" };
 const PAYOUT = { pending: "En préparation", paid: "Versé", cancelled: "Annulé" };
 
-function AccountForm({ account, onSaved }) {
+export function AccountForm({ account, onSaved }) {
   const { busy, error, run } = useAction();
   const [f, setF] = useState({ method: account?.method || "", number: account?.number?.replace("+225", "") || "", holder_name: account?.holder_name || "" });
   const [saved, setSaved] = useState(false);

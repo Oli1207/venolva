@@ -22,6 +22,18 @@ class PlatformSettings(models.Model):
     free_cancel_hours = models.PositiveSmallIntegerField(default=24, validators=[MaxValueValidator(168)])
     price_min_fcfa = models.PositiveIntegerField(default=500)
     price_max_fcfa = models.PositiveIntegerField(default=5_000_000)
+    # Ambassadeurs
+    ambassador_share_pct = models.PositiveSmallIntegerField(default=0, validators=[MaxValueValidator(100)])
+    ambassador_contract_months = models.PositiveSmallIntegerField(default=6, validators=[MinValueValidator(1), MaxValueValidator(36)])
+    # À la une
+    featured_slots = models.PositiveSmallIntegerField(default=5, validators=[MinValueValidator(1), MaxValueValidator(20)])
+    featured_max_days = models.PositiveSmallIntegerField(default=14, validators=[MinValueValidator(1), MaxValueValidator(60)])
+    # Fil d'actualité
+    feed_half_life_hours = models.PositiveSmallIntegerField(default=36, validators=[MinValueValidator(1), MaxValueValidator(240)])
+    feed_pro_boost_pct = models.PositiveSmallIntegerField(default=20, validators=[MaxValueValidator(100)])
+    feed_local_boost_pct = models.PositiveSmallIntegerField(default=40, validators=[MaxValueValidator(200)])
+    feed_boost_every = models.PositiveSmallIntegerField(default=6, validators=[MaxValueValidator(30)])
+    feed_max_per_author = models.PositiveSmallIntegerField(default=2, validators=[MinValueValidator(1), MaxValueValidator(10)])
     # Réservations et marché
     booking_lead_hours = models.PositiveSmallIntegerField(default=1, validators=[MaxValueValidator(72)])
     max_active_listings = models.PositiveSmallIntegerField(default=10, validators=[MinValueValidator(1), MaxValueValidator(100)])
@@ -48,7 +60,7 @@ class PlatformSettings(models.Model):
 
 
 # Description de chaque réglage : sert à valider les modifications et à construire le formulaire de l'administration.
-GROUPS = [("finance", "Finance"), ("bookings", "Réservations et marché"), ("auth", "Connexion par code")]
+GROUPS = [("finance", "Finance"), ("ambassadors", "Ambassadeurs"), ("promo", "À la une"), ("feed", "Fil d'actualité"), ("bookings", "Réservations et marché"), ("auth", "Connexion par code")]
 SCHEMA = [
     dict(key="commission_booking_pct", group="finance", label="Commission sur les réservations de pros", unit="%", min=0, max=50,
          help="Part de Djinzin retenue sur chaque réservation payée en ligne. Elle est déduite de ce que reçoit le pro, le client paie le même prix."),
@@ -65,14 +77,30 @@ SCHEMA = [
          help="Un client qui annule plus tôt est remboursé. Plus tard, le pro garde la somme. Si c'est le pro qui annule, le client est toujours remboursé."),
     dict(key="price_min_fcfa", group="finance", label="Prix minimum d'un article, service ou formule", unit="FCFA", min=100, max=1_000_000, help=""),
     dict(key="price_max_fcfa", group="finance", label="Prix maximum d'un article, service ou formule", unit="FCFA", min=1000, max=50_000_000, help=""),
+    dict(key="ambassador_share_pct", group="ambassadors", label="Part de l'ambassadeur sur les commissions de Djinzin", unit="%", min=0, max=100,
+         help="Proposée par défaut à la création d'un contrat. Elle se calcule sur ce que Djinzin gagne (la commission), jamais sur l'argent des pros. Chaque contrat garde son propre taux."),
+    dict(key="ambassador_contract_months", group="ambassadors", label="Durée d'un contrat d'ambassadeur", unit="mois", min=1, max=36,
+         help="Proposée par défaut. Le renouvellement crée un nouveau contrat de même durée."),
+    dict(key="featured_slots", group="promo", label="Places « À la une » en même temps", unit="places", min=1, max=20,
+         help="Le nombre de contenus mis en avant au même moment. Peu de places, c'est ce qui donne de la valeur à la mise à la une."),
+    dict(key="featured_max_days", group="promo", label="Durée maximale d'une mise à la une", unit="jours", min=1, max=60, help=""),
+    dict(key="feed_half_life_hours", group="feed", label="Durée de vie d'une publication", unit="heures", min=1, max=240,
+         help="Toutes les heures qui passent, une publication perd de l'intérêt ; au bout de cette durée elle compte moitié moins."),
+    dict(key="feed_pro_boost_pct", group="feed", label="Avantage des pros validés", unit="%", min=0, max=100, help="Leurs conseils et articles remontent un peu plus."),
+    dict(key="feed_local_boost_pct", group="feed", label="Avantage de la proximité", unit="%", min=0, max=200,
+         help="Même commune, même salle ou objectif commun : la publication remonte."),
+    dict(key="feed_boost_every", group="feed", label="Un contenu sponsorisé toutes les", unit="publications", min=0, max=30,
+         help="Espacement entre deux contenus mis en avant dans le fil. 0 = aucun dans le fil."),
+    dict(key="feed_max_per_author", group="feed", label="Publications d'un même auteur sur une page", unit="publications", min=1, max=10,
+         help="Évite qu'une seule personne remplisse l'écran."),
     dict(key="booking_lead_hours", group="bookings", label="Délai minimum pour réserver", unit="heures", min=0, max=72,
          help="On ne peut pas réserver une séance qui commence dans moins de ce délai."),
     dict(key="max_active_listings", group="bookings", label="Annonces en vente par membre", unit="annonces", min=1, max=100, help=""),
     dict(key="max_listing_photos", group="bookings", label="Photos par annonce", unit="photos", min=1, max=10, help=""),
     dict(key="otp_ttl_seconds", group="auth", label="Durée de validité d'un code", unit="secondes", min=60, max=1800, help=""),
     dict(key="otp_max_attempts", group="auth", label="Essais par code", unit="essais", min=3, max=10, help="Au-delà, il faut demander un nouveau code."),
-    dict(key="otp_max_requests_per_hour", group="auth", label="Codes demandés par numéro et par heure", unit="codes", min=1, max=20,
-         help="Protège un numéro contre l'envoi massif de SMS."),
+    dict(key="otp_max_requests_per_hour", group="auth", label="Codes demandés par adresse e-mail et par heure", unit="codes", min=1, max=20,
+         help="Protège une adresse contre l'envoi massif d'e-mails."),
 ]
 SCHEMA_BY_KEY = {s["key"]: s for s in SCHEMA}
 

@@ -10,6 +10,7 @@ from django.utils import timezone
 
 from apps.backoffice.config import cfg, commission_pct
 from apps.gyms.models import ClassBooking
+from apps.notifications.services import notify
 from apps.pros.models import Booking
 
 from .exceptions import PaymentUnavailable
@@ -124,7 +125,7 @@ def start_payment(user, purpose: str, target_id: int, method: str) -> Payment:
                 url, provider_id = data.get("redirectUrl"), str(data.get("id") or "")
             else:
                 data = paystack.initialize(
-                    email=f"u{user.pk}@{settings.PAYMENT_EMAIL_DOMAIN}", amount_fcfa=amount, reference=reference,
+                    email=user.email or f"u{user.pk}@{settings.PAYMENT_EMAIL_DOMAIN}", amount_fcfa=amount, reference=reference,
                     callback_url=callback, metadata={"purpose": purpose, "target": target_id, "user": user.pk},
                 )
                 url, provider_id = data.get("authorization_url"), ""
@@ -192,7 +193,10 @@ def fulfill(reference: str, *, received: int, currency: str, paid_at=None) -> Pa
         payment.paid_at = paid_at or timezone.now()
         payment.save(update_fields=["status", "paid_at"])
         _apply(payment)
-        return payment
+    price = f"{payment.amount:,}".replace(",", " ")
+    notify(payment.payee, "payment_received", f"Paiement reçu : {price} F", "", "/revenus")
+    notify(payment.user, "payment_confirmed", f"Paiement de {price} F confirmé", "", "/seances?tab=bookings")
+    return payment
 
 
 def verify_with_provider(payment: Payment) -> Payment:
