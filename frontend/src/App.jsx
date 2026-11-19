@@ -11,7 +11,10 @@ import Moderation from "./admin/Moderation";
 import AdminPayments from "./admin/Payments";
 import Payouts from "./admin/Payouts";
 import Settings from "./admin/Settings";
+import Annonces from "./admin/Annonces";
 import Promo from "./admin/Promo";
+import Publications from "./admin/Publications";
+import Reservations from "./admin/Reservations";
 import Signalements from "./admin/Signalements";
 import Users from "./admin/Users";
 import ALaUne from "./pages/ALaUne";
@@ -95,6 +98,9 @@ export default function App() {
         <Route path="moderation" element={<Moderation />} />
         <Route path="a-la-une" element={<Promo />} />
         <Route path="signalements" element={<Signalements />} />
+        <Route path="publications" element={<Publications />} />
+        <Route path="annonces" element={<Annonces />} />
+        <Route path="reservations" element={<Reservations />} />
         <Route path="utilisateurs" element={<Users />} />
         <Route path="journal" element={<Journal />} />
       </Route>

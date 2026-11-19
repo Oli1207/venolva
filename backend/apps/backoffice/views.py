@@ -23,7 +23,10 @@ from apps.payments.services import (
 )
 from apps.notifications.services import notify
 from apps.pros.models import ProProfile
+from apps.promo.models import Feature
+from apps.safety.models import ContentReport
 
+from .edits import edit_gym_text, edit_identity
 from .models import GROUPS, SCHEMA, SCHEMA_BY_KEY, AuditLog, CommissionOverride, PlatformSettings, audit
 
 
@@ -86,6 +89,8 @@ class DashboardView(AdminView):
                     signed_at__isnull=False, terminated_at__isnull=True, renewals__isnull=True,
                     end_date__gte=timezone.localdate(), end_date__lte=timezone.localdate() + timedelta(days=30),
                 ).count(),
+                "features_pending": Feature.objects.filter(status="pending").count(),
+                "content_reports_open": ContentReport.objects.filter(handled=False).count(),
                 "commission_set": values["commission_booking_pct"] > 0 or values["commission_class_pct"] > 0,
             }
         )
@@ -400,6 +405,9 @@ class GymDetailView(AdminView):
 
     def patch(self, request, pk):
         gym = get_object_or_404(Gym, pk=pk)
+        error = edit_gym_text(request.user, gym, request.data)
+        if error:
+            return bad(error)
         changes = {}
         if "verified" in request.data:
             if not isinstance(request.data["verified"], bool):
@@ -488,6 +496,9 @@ class UserDetailView(AdminView):
         if user.is_superuser:
             return bad("Un superutilisateur ne se modifie pas ici.", status.HTTP_403_FORBIDDEN)
         changes = {}
+        error = edit_identity(request.user, user, request.data)
+        if error:
+            return bad(error)
         for field in ("is_active", "is_staff"):
             if field in request.data:
                 value = request.data[field]
@@ -500,3 +511,4 @@ class UserDetailView(AdminView):
         user.save()
         audit(request.user, "user.update", f"user:{user.id}", changes=changes)
         return Response(user_row(user))
+

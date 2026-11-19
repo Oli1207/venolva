@@ -27,6 +27,8 @@ export default function Dashboard() {
         <div className="tiles">
           <Tile value={d.pros_pending} label="Dossiers pro à valider" to="/admin/dossiers" alert={d.pros_pending > 0} />
           <Tile value={d.reports_open} label="Annonces signalées" to="/admin/moderation" alert={d.reports_open > 0} />
+          <Tile value={d.content_reports_open} label="Membres et publications signalés" to="/admin/signalements" alert={d.content_reports_open > 0} />
+          <Tile value={d.features_pending} label="Demandes À la une" to="/admin/a-la-une" alert={d.features_pending > 0} />
           <Tile value={d.refunds.count} label={`Remboursements à faire (${fmtPrice(d.refunds.amount)})`} to="/admin/paiements" alert={d.refunds.count > 0} />
           <Tile value={d.to_review} label="Paiements à vérifier" to="/admin/paiements" alert={d.to_review > 0} />
         </div>

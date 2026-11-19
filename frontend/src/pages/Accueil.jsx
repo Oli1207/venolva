@@ -91,7 +91,7 @@ export default function Accueil() {
 
       <footer className="lp-foot">
         <Wordmark size={18} />
-        <span>Venolva · Abidjan, Côte d'Ivoire</span>
+        <span>Venolva · Abidjan, Côte d'Ivoire · <Link to="/admin" style={{ textDecoration: "underline", textUnderlineOffset: 3 }}>Espace équipe</Link></span>
       </footer>
     </div>
   );
