@@ -22,9 +22,11 @@ cp .env.example .env
 .venv/Scripts/python.exe manage.py test
 ```
 
-En développement, le code de connexion est renvoyé dans la réponse (`dev_code`) et affiché dans la console. Aucun SMS n'est envoyé : le fournisseur se branche dans `OtpRequestView.send_code`.
+En développement, le code de connexion est renvoyé dans la réponse (`dev_code`) et envoyé par e-mail dans la console du serveur. En production, renseigner `EMAIL_BACKEND` (SMTP) et les variables `EMAIL_*` du fichier `.env.example`.
 
-Sans variables `POSTGRES_*`, la base est SQLite. Pour PostgreSQL, renseigner `POSTGRES_DB` et les variables associées dans `.env`.
+Base de données : SQLite en développement (sans variables `POSTGRES_*`), **PostgreSQL en production** (renseigner `POSTGRES_DB` et les variables associées dans `.env`, puis `manage.py migrate` sur une base vide).
+
+Les identifiants sont des UUID et les migrations ont été réinitialisées : une ancienne base SQLite de développement doit être supprimée (`db.sqlite3`) avant de relancer `migrate`.
 
 ## Lancer le frontend
 
