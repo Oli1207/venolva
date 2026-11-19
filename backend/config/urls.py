@@ -1,10 +1,24 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.http import JsonResponse
 from django.urls import include, path
 
+def health(_request):
+    """Sonde pour le serveur : l'application répond et la base de données aussi."""
+    from django.db import connection
+
+    try:
+        with connection.cursor() as cur:
+            cur.execute("SELECT 1")
+    except Exception:  # noqa: BLE001
+        return JsonResponse({"ok": False}, status=503)
+    return JsonResponse({"ok": True})
+
+
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path("django-admin/", admin.site.urls),  # hors /admin, réservé à l'espace équipe de l'application
+    path("api/health/", health),
     path("api/auth/", include("apps.accounts.urls")),
     path("api/", include("apps.gyms.urls")),
     path("api/", include("apps.matching.urls")),

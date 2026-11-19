@@ -75,3 +75,14 @@ class UuidIdentifierTests(APITestCase):
         audit(staff, "test.action", "x", owner=self.me.id, ids=[self.awa.id])
         entry = AuditLog.objects.get(action="test.action")
         self.assertEqual(entry.detail["owner"], str(self.me.id))
+
+
+class HealthTests(APITestCase):
+    def test_health_check_answers_without_login(self):
+        res = self.client.get("/api/health/")
+        self.assertEqual((res.status_code, res.json()), (200, {"ok": True}))
+
+    def test_the_django_admin_no_longer_shadows_the_team_space(self):
+        # /admin appartient à l'application web ; l'admin de Django est déplacée
+        self.assertEqual(self.client.get("/admin/").status_code, 404)
+        self.assertIn(self.client.get("/django-admin/login/").status_code, (200, 302))
